@@ -1,19 +1,17 @@
-from rest_framework import serializers
 from django.contrib.auth import get_user_model
-from rest_framework.exceptions import NotAcceptable
-from rest_framework.exceptions import PermissionDenied
+from rest_framework import serializers
 
 
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = get_user_model()
         ref_name = 'UserSerializer'
-        fields = ("email", "password", "first_name", "last_name", "user_id")
+        fields = ("email", "password", "name", "user_id", "phone_number")
 
     email = serializers.EmailField(max_length=255, required=True)
-    first_name = serializers.CharField(max_length=50, required=True)
-    last_name = serializers.CharField(max_length=50, required=True)
+    name = serializers.CharField(max_length=50, required=True)
     password = serializers.CharField(write_only=True, required=True)
+    phone_number = serializers.CharField(write_only=True, required=True)
     user_id = serializers.IntegerField(read_only=True)
 
     def create(self, validated_data):
@@ -27,7 +25,6 @@ class UserSerializer(serializers.ModelSerializer):
 
 
 class UserInfoSerializer(serializers.ModelSerializer):
-
     class Meta:
         model = get_user_model()
-        exclude = ('password', 'last_login', 'is_admin')
+        exclude = ('password', 'last_login', 'is_admin', 'is_active')

@@ -1,6 +1,8 @@
 from django.contrib.auth import get_user_model
 from rest_framework import permissions
 from rest_framework.generics import CreateAPIView, RetrieveAPIView
+
+from MyUser.permissions import OwnProfilePermission
 from MyUser.serializers import UserSerializer, UserInfoSerializer
 
 
@@ -14,7 +16,8 @@ class RegisterUsers(CreateAPIView):
 
 class UserInfo(RetrieveAPIView):
     permission_classes = [
-        permissions.IsAuthenticated
+        permissions.IsAuthenticated,
+        OwnProfilePermission
     ]
     serializer_class = UserInfoSerializer
 

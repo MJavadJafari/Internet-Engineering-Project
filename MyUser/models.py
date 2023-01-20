@@ -24,15 +24,14 @@ class MyUserManager(BaseUserManager):
 
 class MyUser(AbstractBaseUser):
     user_id = models.AutoField(primary_key=True)
-    first_name = models.CharField(max_length=50)
-    last_name = models.CharField(max_length=50)
+    name = models.CharField(max_length=50)
     email = models.EmailField(max_length=255, unique=True)
     credit = models.IntegerField(default=0)
-    rooyesh = models.IntegerField(default=0)
+    rooyesh = models.IntegerField(default=3)
     biography = models.CharField(max_length=1003, default='', blank=True)
     picture = models.ImageField(upload_to='user/profile/', blank=True)
 
-    phone_number = models.CharField(max_length=50, default='', blank=True)
+    phone_number = models.CharField(max_length=50)
 
     is_active = models.BooleanField(default=True)
     is_admin = models.BooleanField(default=False)
@@ -40,7 +39,7 @@ class MyUser(AbstractBaseUser):
     objects = MyUserManager()
 
     USERNAME_FIELD = 'email'
-    REQUIRED_FIELDS = ['first_name', 'last_name']
+    REQUIRED_FIELDS = ['name', 'phone_number']
 
     def has_perm(self, perm, obj=None):
         return True
