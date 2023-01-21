@@ -17,11 +17,17 @@ class Book(models.Model):
 
 
 class BookRequest(models.Model):
-    class Meta:
-        unique_together = [['user', 'book']]
+    PENDING = 'Pending'
+    APPROVED = 'Approved'
+    REJECTED = 'Rejected'
 
-    user = models.ForeignKey('MyUser.MyUser', on_delete=models.CASCADE, related_name='user')
-    book = models.ForeignKey('Book.Book', on_delete=models.CASCADE, related_name='book')
-    is_pending = models.BooleanField(default=True)
-    is_accepted = models.BooleanField(default=False)
+    constraints = [
+        models.UniqueConstraint(
+            fields=['user', 'book'], name='unique_migration'
+        )
+    ]
+    user = models.ForeignKey('MyUser.MyUser', on_delete=models.CASCADE, related_name='requests_per_user', blank=True)
+    book = models.ForeignKey('Book.Book', on_delete=models.CASCADE, related_name='requests_for_book')
+    status = models.CharField(max_length=3, default=PENDING)
     is_reported = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)

@@ -58,5 +58,5 @@ class MyUser(AbstractBaseUser):
 
     def change_rooyesh(self, value):
         self.rooyesh = max(self.rooyesh + int(value), 0)
-        self.save(update_fields=['credit'])
+        self.save(update_fields=['rooyesh'])
         return self.rooyesh

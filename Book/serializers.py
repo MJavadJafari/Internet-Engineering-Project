@@ -1,8 +1,5 @@
 from rest_framework import serializers
-
-from django.contrib.auth import get_user_model
-
-from Book.models import Book
+from Book.models import Book, BookRequest
 
 
 class BookSerializer(serializers.ModelSerializer):
@@ -15,3 +12,25 @@ class BookSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         tour = Book.objects.create(**validated_data, donator=self.context['request'].user)
         return tour
+
+
+class BookRequestSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = BookRequest
+        exclude = ('created_at', 'id')
+        read_only_fields = ['status', 'created_at']
+
+    def create(self, validated_data):
+        user = self.context['request'].user
+        prev_req = BookRequest.objects.filter(**validated_data, user=self.context['request'].user)
+        if prev_req.exists():
+            return prev_req[0]
+
+        if user.rooyesh == 0:
+            raise serializers.ValidationError('Not enough rooyesh')
+
+        request = BookRequest.objects.create(**validated_data, user=self.context['request'].user)
+        user.change_rooyesh(-1)
+
+        print(user.rooyesh)
+        return request
