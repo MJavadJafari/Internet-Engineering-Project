@@ -21,7 +21,8 @@ class CustomAuthToken(ObtainAuthToken):
             'user_id': user.pk,
             'email': user.email,
             'name': user.name,
-            'phone_number': user.phone_number
+            'phone_number': user.phone_number,
+            'rooyesh': user.rooyesh
         })
 
 

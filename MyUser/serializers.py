@@ -6,9 +6,10 @@ from rest_framework.authtoken.models import Token
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = get_user_model()
-        fields = ("email", "password", "name", "user_id", "phone_number", "token")
+        fields = ("email", "password", "name", "user_id", "phone_number", "token", "rooyesh")
 
     email = serializers.EmailField(max_length=255, required=True)
+    rooyesh = serializers.IntegerField(read_only=True)
     name = serializers.CharField(max_length=50, required=True)
     password = serializers.CharField(write_only=True, required=True)
     phone_number = serializers.CharField(required=True)
