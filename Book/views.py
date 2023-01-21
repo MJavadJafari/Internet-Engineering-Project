@@ -3,7 +3,6 @@ from rest_framework import filters, permissions
 from rest_framework.generics import CreateAPIView, RetrieveAPIView, ListAPIView, GenericAPIView
 from django_filters.rest_framework import DjangoFilterBackend
 from Book.models import Book, BookRequest
-from Book.permissions import RequestPermission
 from Book.serializers import BookSerializer, BookRequestSerializer
 
 
