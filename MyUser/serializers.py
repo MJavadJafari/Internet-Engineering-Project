@@ -1,18 +1,22 @@
 from django.contrib.auth import get_user_model
 from rest_framework import serializers
+from rest_framework.authtoken.models import Token
 
 
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = get_user_model()
-        ref_name = 'UserSerializer'
-        fields = ("email", "password", "name", "user_id", "phone_number")
+        fields = ("email", "password", "name", "user_id", "phone_number", "token")
 
     email = serializers.EmailField(max_length=255, required=True)
     name = serializers.CharField(max_length=50, required=True)
     password = serializers.CharField(write_only=True, required=True)
-    phone_number = serializers.CharField(write_only=True, required=True)
+    phone_number = serializers.CharField(required=True)
     user_id = serializers.IntegerField(read_only=True)
+    token = serializers.SerializerMethodField(method_name='get_token', read_only=True)
+
+    def get_token(self, user):
+        return Token.objects.get_or_create(user=user)[0].key
 
     def create(self, validated_data):
         user = get_user_model().objects.create_user(**validated_data)

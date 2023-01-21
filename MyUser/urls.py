@@ -1,10 +1,8 @@
-from django.contrib import admin
-from django.urls import path, include
-from rest_framework.authtoken.views import obtain_auth_token
-from MyUser.views import UserInfo, RegisterUsers
+from MyUser.views import UserInfo, RegisterUsers, CustomAuthToken
+from django.urls import path
 
 urlpatterns = [
     path('register/', RegisterUsers.as_view()),
-    path('token/', obtain_auth_token),
+    path('login/', CustomAuthToken.as_view()),
     path('info/', UserInfo.as_view()),
 ]
