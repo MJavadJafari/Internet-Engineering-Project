@@ -3,7 +3,7 @@ from rest_framework import filters, permissions
 from rest_framework.generics import CreateAPIView, RetrieveAPIView, ListAPIView, GenericAPIView
 from django_filters.rest_framework import DjangoFilterBackend
 from Book.models import Book, BookRequest
-from Book.serializers import BookSerializer, BookRequestSerializer
+from Book.serializers import BookSerializer, BookRequestSerializer, MyRequestsSerializer
 
 
 class RegisterBooks(CreateAPIView):
@@ -47,10 +47,21 @@ class Requests_to_me(ListAPIView):
         permissions.IsAuthenticated
     ]
     serializer_class = BookRequestSerializer
-    queryset = BookRequest.objects.all()
     filter_backends = (DjangoFilterBackend,)
     filterset_fields = ['book', 'status']
     
+    def get_queryset(self):
+        return BookRequest.objects.filter(book__donator=self.request.user)
+
+
+class My_requests(ListAPIView):
+    permission_classes = [
+        permissions.IsAuthenticated
+    ]
+    serializer_class = MyRequestsSerializer
+    filter_backends = (DjangoFilterBackend,)
+    filterset_fields = ['status']
+
     def get_queryset(self):
         return BookRequest.objects.filter(user=self.request.user)
 #

@@ -18,7 +18,7 @@ class BookRequestSerializer(serializers.ModelSerializer):
     class Meta:
         model = BookRequest
         exclude = ('created_at', 'id')
-        read_only_fields = ['status', 'created_at']
+        read_only_fields = ['status', 'created_at', 'id']
 
     def create(self, validated_data):
         user = self.context['request'].user
@@ -34,3 +34,18 @@ class BookRequestSerializer(serializers.ModelSerializer):
 
         print(user.rooyesh)
         return request
+
+
+class MyRequestsSerializer(serializers.ModelSerializer):
+    book = BookSerializer()
+
+    class Meta:
+        model = BookRequest
+        exclude = ('created_at', 'id')
+        read_only_fields = ['status', 'created_at', 'id']
+
+    def to_representation(self, instance):
+        result = super().to_representation(instance)
+        if isinstance(instance, BookRequest) and instance.status == BookRequest.APPROVED:
+            result['phone_number'] = instance.book.donator.phone_number
+        return result

@@ -1,7 +1,7 @@
 from django.contrib import admin
 from django.urls import path, include
 
-from Book.views import BookInfo, RegisterBooks, AllBooks, AddRequest, Requests_to_me
+from Book.views import BookInfo, RegisterBooks, AllBooks, AddRequest, Requests_to_me, My_requests
 
 urlpatterns = [
     path('<int:pk>/', BookInfo.as_view()),
@@ -9,5 +9,6 @@ urlpatterns = [
     path('register/', RegisterBooks.as_view()),
     path('request/register/', AddRequest.as_view()),
     path('request/requeststome/', Requests_to_me.as_view()),
+    path('request/myrequests/', My_requests.as_view()),
     # path('mybooks/', MyBooks.as_view()),
 ]

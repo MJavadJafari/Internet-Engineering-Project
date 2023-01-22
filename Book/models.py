@@ -33,6 +33,6 @@ class BookRequest(models.Model):
     ]
     user = models.ForeignKey('MyUser.MyUser', on_delete=models.CASCADE, related_name='requests_per_user', blank=True)
     book = models.ForeignKey('Book.Book', on_delete=models.CASCADE, related_name='requests_for_book')
-    status = models.CharField(max_length=3, default=PENDING)
+    status = models.CharField(max_length=10, default=PENDING)
     is_reported = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
