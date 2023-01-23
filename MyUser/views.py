@@ -2,11 +2,11 @@ from django.contrib.auth import get_user_model
 from rest_framework import permissions
 from rest_framework.authtoken.models import Token
 from rest_framework.authtoken.views import ObtainAuthToken
-from rest_framework.generics import CreateAPIView, RetrieveAPIView
+from rest_framework.generics import CreateAPIView, RetrieveAPIView, UpdateAPIView
 from rest_framework.response import Response
 
 from MyUser.permissions import OwnProfilePermission
-from MyUser.serializers import UserSerializer, UserInfoSerializer
+from MyUser.serializers import UserSerializer, UserInfoSerializer, UserUpdateSerializer
 
 
 class CustomAuthToken(ObtainAuthToken):
@@ -40,6 +40,17 @@ class UserInfo(RetrieveAPIView):
         OwnProfilePermission
     ]
     serializer_class = UserInfoSerializer
+
+    def get_object(self):
+        return self.request.user
+
+
+class UpdateUser(UpdateAPIView):
+    permission_classes = [
+        permissions.IsAuthenticated,
+        OwnProfilePermission
+    ]
+    serializer_class = UserUpdateSerializer
 
     def get_object(self):
         return self.request.user

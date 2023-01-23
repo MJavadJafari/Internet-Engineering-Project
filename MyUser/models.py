@@ -28,8 +28,8 @@ class MyUser(AbstractBaseUser):
     email = models.EmailField(max_length=255, unique=True)
     credit = models.IntegerField(default=0)
     rooyesh = models.IntegerField(default=3)
-    biography = models.CharField(max_length=1003, default='', blank=True)
-    picture = models.ImageField(upload_to='user/profile/', blank=True)
+    post_address = models.CharField(max_length=100, default='', blank=True)
+    # picture = models.ImageField(upload_to='user/profile/', blank=True)
 
     phone_number = models.CharField(max_length=50)
 

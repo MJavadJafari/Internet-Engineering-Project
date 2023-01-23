@@ -2,6 +2,8 @@ from django.contrib.auth import get_user_model
 from rest_framework import serializers
 from rest_framework.authtoken.models import Token
 
+from MyUser.models import MyUser
+
 
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
@@ -27,6 +29,27 @@ class UserSerializer(serializers.ModelSerializer):
         if get_user_model().objects.filter(email=value.lower()).exists():
             raise serializers.ValidationError("email exists.")
         return value
+
+
+class UserUpdateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = get_user_model()
+        fields = ('name', 'email', 'phone_number', 'post_address')
+
+    def validate_email(self, value):
+        if get_user_model().objects.filter(email=value.lower()).exists():
+            raise serializers.ValidationError("email exists.")
+        return value
+
+    def update(self, instance, validated_data):
+        if 'email' in validated_data:
+            instance.email = validated_data.get('email')
+            # instance.is_active = False
+        instance.name = validated_data.get('name', instance.name)
+        instance.phone_number = validated_data.get('phone_number', instance.phone_number)
+        instance.post_address = validated_data.get('post_address', instance.post_address)
+        instance.save()
+        return instance
 
 
 class UserInfoSerializer(serializers.ModelSerializer):
