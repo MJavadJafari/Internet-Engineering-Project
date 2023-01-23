@@ -14,6 +14,21 @@ class BookSerializer(serializers.ModelSerializer):
         return tour
 
 
+class AllBooksSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Book
+        exclude = ('created_at',)
+        read_only_fields = ['is_donated', 'is_received', 'donator', 'book_id']
+
+    def to_representation(self, instance):
+        assert isinstance(instance, Book)
+        result = super().to_representation(instance)
+        # if BookRequest.objects.filter(book=instance, user=self.context['request'].user)
+        result['is_requested_before'] = BookRequest.objects.filter(book=instance, user=self.context['request'].user).exists()
+        return result
+
+
 class BookRequestSerializer(serializers.ModelSerializer):
     class Meta:
         model = BookRequest

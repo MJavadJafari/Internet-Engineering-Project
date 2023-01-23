@@ -26,7 +26,7 @@ class MyUser(AbstractBaseUser):
     user_id = models.AutoField(primary_key=True)
     name = models.CharField(max_length=50)
     email = models.EmailField(max_length=255, unique=True)
-    credit = models.IntegerField(default=0)
+    credit = models.IntegerField(default=1)
     rooyesh = models.IntegerField(default=3)
     post_address = models.CharField(max_length=100, default='', blank=True)
     # picture = models.ImageField(upload_to='user/profile/', blank=True)
@@ -52,7 +52,7 @@ class MyUser(AbstractBaseUser):
         return self.is_admin
 
     def change_credit(self, value):
-        self.credit = max(self.credit + int(value), 0)
+        self.credit = max(self.credit + int(value), 1)
         self.save(update_fields=['credit'])
         return self.credit
 
