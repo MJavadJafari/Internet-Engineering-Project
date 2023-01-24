@@ -14,3 +14,8 @@ pytz==2022.6
 sqlparse==0.4.3
 tzdata==2022.7
 zipp==3.11.0
+hazm==0.7.0
+numpy==1.23.2
+pandas==1.5.2
+gensim==4.2.0
+sklearn==0.0
