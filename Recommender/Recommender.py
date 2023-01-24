@@ -44,3 +44,10 @@ class SingletonRecommender:
 if __name__ == '__main__':
 
     recommender = SingletonRecommender()
+    recommender.init_model({})
+    recommender.insert_book(2, 'دانشجویان این دانشگاه در حال بررسی پروژه خود هستند.')
+    recommender.insert_book(5, 'دانش‌آموزان این مدرسه در تلاش برای انجام تمارین هستند.')
+    recommender.insert_book(6, 'در جنگل ایران ببرهای بسیاری وجود دارد که در معرض خطر هستند.')
+    recommender.insert_book(7, 'تاریخ بیهقی شامل فراز و نشیب بسیار است.')
+    print(recommender.ask_book(2))
+    print(recommender.print_books())
