@@ -8,11 +8,11 @@ class BookConfig(AppConfig):
 
     def ready(self):
         try:
-            import Recommender
+            from Recommender.Recommender import SingletonRecommender
             import os
             from Book.models import Book
             if os.environ.get('RUN_MAIN'):
-                rec = Recommender.Recommender.SingletonRecommender()
+                rec = SingletonRecommender()
                 dic = {}
                 for item in Book.objects.all():
                     dic[item.book_id] = item.description
