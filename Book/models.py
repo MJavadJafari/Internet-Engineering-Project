@@ -6,8 +6,8 @@ class Book(models.Model):
     book_id = models.AutoField(primary_key=True)
     name = models.CharField(max_length=60, blank=False)
     description = models.TextField(max_length=250, blank=False)
-    # picture = models.ImageField(upload_to='book/', blank=True)
-    picture = models.CharField(max_length=200, blank=True)
+    picture = models.ImageField(upload_to='book/', blank=True)
+    # picture = models.CharField(max_length=200, blank=True)
     translator = models.CharField(max_length=50, blank=True)
     shabak = models.CharField(max_length=50, blank=True)
     publish_year = models.CharField(max_length=20, blank=True)
@@ -15,7 +15,7 @@ class Book(models.Model):
     is_received = models.BooleanField(default=False)
     donator = models.ForeignKey('MyUser.MyUser', on_delete=models.CASCADE, blank=True, related_name='donator')
     author = models.CharField(max_length=60, blank=True)
-
+    ranking = models.IntegerField(default=0)
 
     def __str__(self):
         return self.name

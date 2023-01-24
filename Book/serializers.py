@@ -10,8 +10,15 @@ class BookSerializer(serializers.ModelSerializer):
         read_only_fields = ['is_donated', 'is_received', 'donator', 'book_id']
 
     def create(self, validated_data):
-        tour = Book.objects.create(**validated_data, donator=self.context['request'].user)
-        return tour
+        book = Book.objects.create(**validated_data, donator=self.context['request'].user)
+        try:
+            from Recommender.Recommender import SingletonRecommender
+            rec = SingletonRecommender()
+            rec.insert_book(book.book_id, book.description)
+        except Exception as e:
+            print(e)
+
+        return book
 
 
 class AllBooksSerializer(serializers.ModelSerializer):
@@ -24,7 +31,6 @@ class AllBooksSerializer(serializers.ModelSerializer):
     def to_representation(self, instance):
         assert isinstance(instance, Book)
         result = super().to_representation(instance)
-        # if BookRequest.objects.filter(book=instance, user=self.context['request'].user)
         result['is_requested_before'] = BookRequest.objects.filter(book=instance, user=self.context['request'].user).exists()
         return result
 

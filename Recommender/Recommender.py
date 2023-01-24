@@ -19,7 +19,7 @@ class SingletonRecommender:
 
     def init_model(self, book_data):
         self.book_data = book_data
-        self.embedding_model = SentEmbedding(model_path='C:/Users/delta/PycharmProjects/net/Recommender/sent2vec-naab.model')
+        self.embedding_model = SentEmbedding(model_path='/Recommender/sent2vec-naab.model')
         tmp_dic = {}
         for item in book_data:
             tmp_dic[item] = self.embedding_model[book_data[item]]
