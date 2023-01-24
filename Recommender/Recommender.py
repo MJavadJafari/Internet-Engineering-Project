@@ -14,11 +14,16 @@ class SingletonRecommender:
     def init_model(self, book_data):
         self.embedding_model = SentEmbedding(model_path= '/home/ebrahim/Desktop/sent2vec/sent2vec-naab.model')
         tmp_dic = {}
+        for item in book_data:
+            tmp_dic[item] = self.embedding_model[book_data[item]]
         self.book_data = tmp_dic
 
     def insert_book(self, id: int, summary: str):
         book_vec = self.embedding_model[summary]
         self.book_data[id] = book_vec 
+
+    def delete_book(self, id):
+        self.book_data.pop(id)
 
     def print_books(self):
         print(self.book_data)
@@ -39,5 +44,3 @@ class SingletonRecommender:
 if __name__ == '__main__':
 
     recommender = SingletonRecommender()
-
-
