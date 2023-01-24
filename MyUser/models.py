@@ -1,3 +1,4 @@
+from django.contrib.auth import get_user_model
 from django.contrib.auth.models import BaseUserManager, AbstractBaseUser
 from django.db import models
 
@@ -60,3 +61,8 @@ class MyUser(AbstractBaseUser):
         self.rooyesh = max(self.rooyesh + int(value), 0)
         self.save(update_fields=['rooyesh'])
         return self.rooyesh
+
+
+class EmailToken(models.Model):
+    token = models.CharField(max_length=30)
+    user = models.ForeignKey(get_user_model(), on_delete=models.CASCADE)

@@ -1,10 +1,15 @@
 from django.contrib.auth import get_user_model
+from django.core.mail import send_mail
+from django.shortcuts import render
 from rest_framework import permissions
 from rest_framework.authtoken.models import Token
 from rest_framework.authtoken.views import ObtainAuthToken
 from rest_framework.generics import CreateAPIView, RetrieveAPIView, UpdateAPIView
 from rest_framework.response import Response
+from rest_framework.status import HTTP_200_OK, HTTP_400_BAD_REQUEST
+from rest_framework.views import APIView
 
+from MyUser.models import EmailToken, MyUser
 from MyUser.permissions import OwnProfilePermission
 from MyUser.serializers import UserSerializer, UserInfoSerializer, UserUpdateSerializer
 
@@ -33,6 +38,12 @@ class RegisterUsers(CreateAPIView):
     ]
     serializer_class = UserSerializer
 
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        self.perform_create(serializer)
+        return Response({'Success'}, status=HTTP_200_OK)
+
 
 class UserInfo(RetrieveAPIView):
     permission_classes = [
@@ -54,3 +65,18 @@ class UpdateUser(UpdateAPIView):
 
     def get_object(self):
         return self.request.user
+
+
+class ActivateUser(APIView):
+    def get(self, request, token):
+        try:
+            email_token = EmailToken.objects.get(token=token)
+            user = email_token.user
+        except:
+            return Response({'Invalid user'}, status=HTTP_400_BAD_REQUEST)
+
+        user.is_active = True
+        user.save()
+
+        email_token.delete()
+        return render(request, 'activation_success.html')

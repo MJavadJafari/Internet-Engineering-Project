@@ -190,4 +190,10 @@ class ReceiveBook(APIView):
 
         book.is_received = True
         book.save()
+
+        donator = book.donator
+        donator.change_rooyesh(2)
+        donator.change_credit(1)
+        donator.save()
+
         return Response({'Success'}, status=HTTP_200_OK)
