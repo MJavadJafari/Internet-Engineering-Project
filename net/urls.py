@@ -14,12 +14,15 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from django.contrib import admin
-from django.urls import path, include
+from django.urls import path, include, re_path
 from schema_graph.views import Schema
+
+from MediaHandler.views import GetFile
 
 urlpatterns = [
     path("schema/", Schema.as_view()),
     path('admin/', admin.site.urls),
     path('auth/', include('MyUser.urls')),
     path('book/', include('Book.urls')),
+    re_path(r'^media/(?P<folder>.*)/(?P<file_name>.*)$', GetFile.as_view()),
 ]

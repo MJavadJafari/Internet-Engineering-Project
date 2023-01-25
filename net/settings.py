@@ -17,6 +17,9 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 STATIC_ROOT = os.path.join(BASE_DIR, "static")
 
+MEDIA_ROOT = os.path.join(BASE_DIR, 'data/')
+MEDIA_URL = '/media/'
+
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/4.1/howto/deployment/checklist/
 
@@ -61,6 +64,7 @@ INSTALLED_APPS = [
     'rest_framework',
     'MyUser.apps.MyuserConfig',
     'Book.apps.BookConfig',
+    'MediaHandler.apps.MediahandlerConfig',
     'schema_graph',
     'django_extensions'
 ]

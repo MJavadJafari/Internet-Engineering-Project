@@ -30,7 +30,7 @@ class UserSerializer(serializers.ModelSerializer):
         user = get_user_model().objects.create_user(**validated_data)
         token_for_email_validation = ''.join(random.choices(string.ascii_lowercase + string.digits, k=20))
         EmailToken.objects.create(token=token_for_email_validation, user=user)
-        # user.is_active = False
+        user.is_active = False
         user.save()
         send_mail(subject='تایید عضویت کهربا',
                   message='برای فعال سازی حساب کاربری خود بر روی لینک زیر کلیک کنید.'
