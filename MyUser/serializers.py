@@ -58,8 +58,19 @@ class UserUpdateSerializer(serializers.ModelSerializer):
 
     def update(self, instance, validated_data):
         if 'email' in validated_data:
+            instance.is_active = False
             instance.email = validated_data.get('email')
-            # instance.is_active = False
+            token_for_email_validation = ''.join(random.choices(string.ascii_lowercase + string.digits, k=20))
+            EmailToken.objects.create(token=token_for_email_validation, user=instance)
+            instance.save()
+
+            send_mail(subject='تایید عضویت کهربا',
+                      message='برای فعال سازی حساب کاربری خود بر روی لینک زیر کلیک کنید.'
+                              + '\n' + self.context[
+                                  'request'].get_host() + '/auth/activate/' + token_for_email_validation + '\n',
+                      from_email=settings.EMAIL_HOST_USER,
+                      recipient_list=[instance.email])
+
         instance.name = validated_data.get('name', instance.name)
         instance.phone_number = validated_data.get('phone_number', instance.phone_number)
         instance.post_address = validated_data.get('post_address', instance.post_address)

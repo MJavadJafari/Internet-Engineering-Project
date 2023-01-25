@@ -23,12 +23,19 @@ STATIC_ROOT = os.path.join(BASE_DIR, "static")
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = 'django-insecure-rnjyt+@+tww1pi5x6rx9^&=202zm3(t5a^+%^*8mpkr$+gjqp)'
 
+# EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+# EMAIL_HOST = 'smtp.gmail.com'
+# EMAIL_PORT = 587
+# EMAIL_USE_TLS = True
+# EMAIL_HOST_USER = 'maajara.contact@gmail.com'
+# EMAIL_HOST_PASSWORD = 'kxrtuxxelnumlqla'
+
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
-EMAIL_HOST_USER = 'maajara.contact@gmail.com'
-EMAIL_HOST_PASSWORD = 'kxrtuxxelnumlqla'
+EMAIL_HOST_USER = 'kahroba.contact@gmail.com'
+EMAIL_HOST_PASSWORD = 'vcngoxteelbcjqax'
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
