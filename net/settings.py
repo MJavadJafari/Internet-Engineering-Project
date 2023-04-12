@@ -66,7 +66,9 @@ INSTALLED_APPS = [
     'Book.apps.BookConfig',
     'MediaHandler.apps.MediahandlerConfig',
     'schema_graph',
-    'django_extensions'
+    'django_extensions',
+    'rest_framework_swagger',
+    'drf_yasg',
 ]
 
 MIDDLEWARE = [

@@ -11,13 +11,13 @@ class BookSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         book = Book.objects.create(**validated_data, donator=self.context['request'].user)
-        try:
-            from Recommender.Recommender import SingletonRecommender
-            rec = SingletonRecommender()
-            rec.insert_book(book.book_id, book.description)
-        except Exception as e:
-            print(e)
-
+        # try:
+        #     from Recommender.Recommender import SingletonRecommender
+        #     rec = SingletonRecommender()
+        #     rec.insert_book(book.book_id, book.description)
+        # except Exception as e:
+        #     print(e)
+        # TODO: add book to recommender
         return book
 
 
