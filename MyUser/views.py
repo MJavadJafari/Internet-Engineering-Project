@@ -1,3 +1,7 @@
+import random
+import string
+
+from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.core.mail import send_mail
 from django.shortcuts import render
@@ -65,6 +69,28 @@ class UpdateUser(UpdateAPIView):
 
     def get_object(self):
         return self.request.user
+
+
+# change password
+class ChangePassword(APIView):
+    permission_classes = [
+        permissions.IsAuthenticated,
+        OwnProfilePermission
+    ]
+
+    def post(self, request):
+        user = request.user
+        old_password = request.data.get('old_password')
+        new_password = request.data.get('new_password')
+        # check if user is active
+        if not user.is_active:
+            return Response({'User is not active'}, status=HTTP_400_BAD_REQUEST)
+        if user.check_password(old_password):
+            user.set_password(new_password)
+            user.save()
+            return Response({'Success'}, status=HTTP_200_OK)
+        else:
+            return Response({'Wrong password'}, status=HTTP_400_BAD_REQUEST)
 
 
 class ActivateUser(APIView):

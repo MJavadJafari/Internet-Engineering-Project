@@ -1,4 +1,4 @@
-from MyUser.views import UserInfo, RegisterUsers, CustomAuthToken, UpdateUser, ActivateUser
+from MyUser.views import UserInfo, RegisterUsers, CustomAuthToken, UpdateUser, ActivateUser, ChangePassword
 from django.urls import path
 
 urlpatterns = [
@@ -7,4 +7,5 @@ urlpatterns = [
     path('info/', UserInfo.as_view()),
     path('update/', UpdateUser.as_view()),
     path('activate/<str:token>', ActivateUser.as_view()),
+    path('change-password/', ChangePassword.as_view()),
 ]
