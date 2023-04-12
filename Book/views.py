@@ -218,7 +218,8 @@ class ReceiveBook(APIView):
         book.save()
 
         donator = book.donator
-        donator.change_rooyesh(2)
+        number_of_request = book.number_of_request
+        donator.change_rooyesh((number_of_request/30) + 2)
         donator.change_credit(1)
         donator.save()
 
