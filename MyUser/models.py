@@ -1,6 +1,7 @@
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import BaseUserManager, AbstractBaseUser
 from django.db import models
+from django.utils import timezone
 
 
 class MyUserManager(BaseUserManager):
@@ -36,6 +37,9 @@ class MyUser(AbstractBaseUser):
 
     is_active = models.BooleanField(default=True)
     is_admin = models.BooleanField(default=False)
+    is_vip = models.BooleanField(default=False)
+
+    vip_end_date = models.DateTimeField(blank=True, null=True)
 
     objects = MyUserManager()
 
@@ -47,6 +51,20 @@ class MyUser(AbstractBaseUser):
 
     def has_module_perms(self, app_label):
         return True
+
+    def is_user_vip(self):
+        if self.vip_end_date is None:
+            return False
+        if self.vip_end_date < timezone.now():
+            self.is_vip = False
+            self.save(update_fields=['is_vip'])
+            return False
+        return True
+
+    def set_vip(self, days):
+        self.vip_end_date = timezone.now() + timezone.timedelta(days=days)
+        self.is_vip = True
+        self.save(update_fields=['vip_end_date', 'is_vip'])
 
     @property
     def is_staff(self):
@@ -66,3 +84,4 @@ class MyUser(AbstractBaseUser):
 class EmailToken(models.Model):
     token = models.CharField(max_length=30)
     user = models.ForeignKey(get_user_model(), on_delete=models.CASCADE)
+

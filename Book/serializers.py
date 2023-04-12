@@ -44,6 +44,7 @@ class BookRequestSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         user = self.context['request'].user
         prev_req = BookRequest.objects.filter(**validated_data, user=self.context['request'].user)
+        print(prev_req)
         if prev_req.exists():
             return prev_req[0]
 

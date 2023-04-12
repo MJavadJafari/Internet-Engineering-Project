@@ -5,6 +5,7 @@ from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.core.mail import send_mail
 from django.shortcuts import render
+from django.utils import timezone
 from rest_framework import permissions
 from rest_framework.authtoken.models import Token
 from rest_framework.authtoken.views import ObtainAuthToken
@@ -25,6 +26,12 @@ class CustomAuthToken(ObtainAuthToken):
         serializer.is_valid(raise_exception=True)
         user = serializer.validated_data['user']
         token, created = Token.objects.get_or_create(user=user)
+
+        # if vip_end_date is passed, make user not vip.check for None because it can be null
+        if user.vip_end_date is not None and user.vip_end_date < timezone.now():
+            user.is_vip = False
+            user.save()
+
         return Response({
             'token': token.key,
             'user_id': user.pk,
@@ -111,7 +118,7 @@ class PasswordReset(APIView):
         # send link to reset password
         send_mail(subject='بازیابی رمز عبور کهربا',
                   message='لینک بازیابی رمز عبور: ' + '\n' +
-                  request.get_host() + '/auth/confirm_password_reset/' + token + '\n',
+                          request.get_host() + '/auth/confirm_password_reset/' + token + '\n',
                   from_email=settings.EMAIL_HOST_USER,
                   recipient_list=[user.email])
 
@@ -136,9 +143,9 @@ class ConfirmPasswordReset(APIView):
 
         send_mail(subject='بازیابی رمز عبور کهربا',
                   message='رمز حساب کاربری شما با موفقیت بازنشانی شد. برای ورود به سامانه از رمز عبور زیر استفاده کنید.'
-                  + '\n' + 'رمز عبور: ' + new_password + '\n',
-                    from_email=settings.EMAIL_HOST_USER,
-                    recipient_list=[user.email])
+                          + '\n' + 'رمز عبور: ' + new_password + '\n',
+                  from_email=settings.EMAIL_HOST_USER,
+                  recipient_list=[user.email])
 
         email_token.delete()
         return render(request, 'password_reset_success.html')
@@ -157,3 +164,15 @@ class ActivateUser(APIView):
 
         email_token.delete()
         return render(request, 'activation_success.html')
+
+
+class BuyVIP(APIView):
+    permission_classes = [
+        permissions.IsAuthenticated,
+        OwnProfilePermission
+    ]
+
+    def post(self, request):
+        user = request.user
+        user.set_vip(30)
+        return Response({'Success'}, status=HTTP_200_OK)
