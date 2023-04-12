@@ -8,6 +8,9 @@ class BookConfig(AppConfig):
 
     # TODO: fix
 
+    def ready(self) -> None:
+        import Book.signals
+
     # def ready(self):
     #     try:
     #         from Recommender.Recommender import SingletonRecommender

@@ -6,8 +6,8 @@ class BookSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Book
-        exclude = ('created_at',)
-        read_only_fields = ['is_donated', 'is_received', 'donator', 'book_id']
+        exclude = ('created_at', 'ranking')
+        read_only_fields = ['is_donated', 'is_received', 'donator', 'book_id', 'number_of_request']
 
     def create(self, validated_data):
         book = Book.objects.create(**validated_data, donator=self.context['request'].user)
@@ -25,8 +25,8 @@ class AllBooksSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Book
-        exclude = ('created_at',)
-        read_only_fields = ['is_donated', 'is_received', 'donator', 'book_id']
+        exclude = ('created_at', 'ranking')
+        read_only_fields = ['is_donated', 'is_received', 'donator', 'book_id', 'number_of_request']
 
     def to_representation(self, instance):
         assert isinstance(instance, Book)
