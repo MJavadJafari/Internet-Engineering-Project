@@ -110,7 +110,7 @@ class ConfirmDonate(APIView):
             return Response({"No one signed up yet"}, status=HTTP_400_BAD_REQUEST)
 
         registered_users = list(registered_users)
-        random_weights = [x.credit for x in registered_users]
+        random_weights = [x.credit * 1.1 if x.is_user_vip() else x.credit for x in registered_users]
         chosen_user = random.choices(registered_users, weights=random_weights, k=1)[0]
 
         # set request status
@@ -219,7 +219,12 @@ class ReceiveBook(APIView):
 
         donator = book.donator
         donator.change_rooyesh(2)
-        donator.change_credit(1)
+
+        is_donator_vip = donator.is_user_vip()
+        if is_donator_vip:
+            donator.change_credit(3)
+        else:
+            donator.change_credit(2)
         donator.save()
 
         return Response({'Success'}, status=HTTP_200_OK)

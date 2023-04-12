@@ -13,7 +13,8 @@ from MyUser.models import MyUser, EmailToken
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = get_user_model()
-        fields = ("email", "password", "name", "user_id", "phone_number", "rooyesh") # token
+        fields = ("email", "password", "name", "user_id", "phone_number", "rooyesh")
+
 
     email = serializers.EmailField(max_length=255, required=True)
     rooyesh = serializers.IntegerField(read_only=True)
