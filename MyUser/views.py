@@ -93,6 +93,57 @@ class ChangePassword(APIView):
             return Response({'Wrong password'}, status=HTTP_400_BAD_REQUEST)
 
 
+# password reset
+class PasswordReset(APIView):
+    def post(self, request):
+        email = request.data.get('email')
+        try:
+            user = MyUser.objects.get(email=email)
+        except:
+            return Response({'Invalid user'}, status=HTTP_400_BAD_REQUEST)
+
+        # generate token
+        token = ''.join(random.choice(string.ascii_uppercase + string.digits) for _ in range(30))
+
+        # save token
+        email_token = EmailToken.objects.create(user=user, token=token)
+
+        # send link to reset password
+        send_mail(subject='بازیابی رمز عبور کهربا',
+                  message='لینک بازیابی رمز عبور: ' + '\n' +
+                  request.get_host() + '/auth/confirm_password_reset/' + token + '\n',
+                  from_email=settings.EMAIL_HOST_USER,
+                  recipient_list=[user.email])
+
+        return Response({'Success'}, status=HTTP_200_OK)
+
+
+# confirm password reset
+class ConfirmPasswordReset(APIView):
+    def get(self, request, token):
+        try:
+            email_token = EmailToken.objects.get(token=token)
+            user = email_token.user
+        except:
+            return Response({'Invalid user'}, status=HTTP_400_BAD_REQUEST)
+
+        # generate new password
+        new_password = ''.join(random.choice(string.ascii_uppercase + string.digits) for _ in range(8))
+
+        # set new password
+        user.set_password(new_password)
+        user.save()
+
+        send_mail(subject='بازیابی رمز عبور کهربا',
+                  message='رمز حساب کاربری شما با موفقیت بازنشانی شد. برای ورود به سامانه از رمز عبور زیر استفاده کنید.'
+                  + '\n' + 'رمز عبور: ' + new_password + '\n',
+                    from_email=settings.EMAIL_HOST_USER,
+                    recipient_list=[user.email])
+
+        email_token.delete()
+        return render(request, 'password_reset_success.html')
+
+
 class ActivateUser(APIView):
     def get(self, request, token):
         try:
