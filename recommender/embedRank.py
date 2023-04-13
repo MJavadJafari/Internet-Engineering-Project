@@ -25,10 +25,17 @@ NP:
 """,
 ]
 
+normalizer = Normalizer()
 
 
 def posTagger(text, pos_model_path="POStagger.model", posTaggerModel=None):
-    None
+    tokens = [word_tokenize(sent) for sent in sent_tokenize(normalizer.normalize(text))]
+    if posTaggerModel is None:
+        tagger = POSTagger(pos_model_path)
+    else:
+        tagger = posTaggerModel
+    return tagger.tag_sents(tokens)
+
 
 def extractCandidates(tagged_text, grammers= grammers):
     None
