@@ -13,6 +13,7 @@ Including another URLconf
     1. Import the include() function: from django.urls import include, path
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
+from azbankgateways.urls import az_bank_gateways_urls
 from django.contrib import admin
 from django.template.defaulttags import url
 from django.urls import path, include, re_path
@@ -43,6 +44,8 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('auth/', include('MyUser.urls')),
     path('book/', include('Book.urls')),
+    path('payment/', include('Payment.urls')),
+    path('bankgateways/', az_bank_gateways_urls()),
     re_path(r'^media/(?P<folder>.*)/(?P<file_name>.*)$', GetFile.as_view()),
     re_path(r'^swagger(?P<format>\.json|\.yaml)$', schema_view.without_ui(cache_timeout=0), name='schema-json'),
     re_path(r'^swagger/$', schema_view.with_ui('swagger', cache_timeout=0), name='schema-swagger-ui'),

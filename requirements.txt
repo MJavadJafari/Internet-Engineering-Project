@@ -41,4 +41,5 @@ threadpoolctl==3.1.0
 tzdata==2022.7
 uritemplate==4.1.1
 urllib3==1.26.14
-zipp==3.11.0
+
+zeep~=4.2.1

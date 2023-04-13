@@ -60,16 +60,34 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'rest_framework.authtoken',
+    'azbankgateways',
     'django_filters',
     'rest_framework',
     'MyUser.apps.MyuserConfig',
     'Book.apps.BookConfig',
     'MediaHandler.apps.MediahandlerConfig',
+    'Payment.apps.PaymentConfig',
     'schema_graph',
     'django_extensions',
     'rest_framework_swagger',
     'drf_yasg',
 ]
+
+AZ_IRANIAN_BANK_GATEWAYS = {
+    'GATEWAYS': {
+        'ZARINPAL': {
+            'MERCHANT_CODE': '978f54b3-dbf5-47ee-8af8-2031e44fa658',
+            'SANDBOX': 1,  # 0 disable, 1 active
+        }
+    },
+    'DEFAULT': 'ZARINPAL',
+    'SETTING_VALUE_READER_CLASS': 'azbankgateways.readers.DefaultReader',  # اختیاری
+}
+
+USE_X_FORWARDED_HOST = True
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+
+TRACKING_CODE_QUERY_AM = 'tc'
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
