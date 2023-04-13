@@ -165,14 +165,3 @@ class ActivateUser(APIView):
         email_token.delete()
         return render(request, 'activation_success.html')
 
-
-class BuyVIP(APIView):
-    permission_classes = [
-        permissions.IsAuthenticated,
-        OwnProfilePermission
-    ]
-
-    def post(self, request):
-        user = request.user
-        user.set_vip(30)
-        return Response({'Success'}, status=HTTP_200_OK)

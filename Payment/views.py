@@ -89,7 +89,7 @@ class VerifyView(APIView):
         print(bank_record.status)
         print(bank_record.extra_information)
 
-
+        # TODO: fix this
         if bank_record.is_success or True:
             transaction.status = Transaction.SUCCESS
             transaction.save()
