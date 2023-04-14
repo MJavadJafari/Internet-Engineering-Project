@@ -1,7 +1,9 @@
 import numpy as np 
 import pandas as pd 
 from embedding import SentEmbedding
+from hazm import POSTagger
 from sklearn.metrics.pairwise import cosine_similarity
+from .embedRank import embedRank
 
 
 class SingletonRecommender:
@@ -13,6 +15,7 @@ class SingletonRecommender:
 
     def init_model(self, book_data):
         self.embedding_model = SentEmbedding(model_path= '/home/ebrahim/Desktop/sent2vec/sent2vec-naab.model')
+        self.posTagger = POSTagger(model = 'posTagger.model')
         tmp_dic = {}
         for item in book_data:
             tmp_dic[item] = self.embedding_model[book_data[item]]
@@ -21,6 +24,8 @@ class SingletonRecommender:
     def insert_book(self, id: int, summary: str):
         book_vec = self.embedding_model[summary]
         self.book_data[id] = book_vec 
+        keyWords = embedRank(summary, max(4, len(summary.split()) / 8), self.embedding_model, self.posTagger)
+        return keyWords
 
     def delete_book(self, id):
         self.book_data.pop(id)
