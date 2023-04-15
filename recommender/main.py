@@ -15,17 +15,18 @@ class SingletonRecommender:
 
     def init_model(self, book_data):
         self.embedding_model = SentEmbedding(model_path= '/home/ebrahim/Desktop/sent2vec/sent2vec-naab.model')
-        self.posTagger = POSTagger(model = 'posTagger.model')
+        self.posTagger = POSTagger(model = '/home/ebrahim/training/postagger.model')
         tmp_dic = {}
         for item in book_data:
-            tmp_dic[item] = self.embedding_model[book_data[item]]
+            summary = book_data[item]
+            keywords = embedRank(summary, max(4, len(summary.split()) / 8))
+            tmp_dic[item] = [self.embedding_model[keyword] for keyword in keywords]
         self.book_data = tmp_dic
 
     def insert_book(self, id: int, summary: str):
-        book_vec = self.embedding_model[summary]
-        self.book_data[id] = book_vec 
-        keyWords = embedRank(summary, max(4, len(summary.split()) / 8), self.embedding_model, self.posTagger)
-        return keyWords
+        keywords = embedRank(summary, max(4, len(summary.split()) / 8))
+        self.book_data[id] = [self.embedding_model[keyword] for keyword in keywords]
+        return keywords
 
     def delete_book(self, id):
         self.book_data.pop(id)
