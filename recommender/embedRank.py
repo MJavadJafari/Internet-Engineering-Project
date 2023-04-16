@@ -4,7 +4,7 @@ from hazm import (
     word_tokenize,
     POSTagger,
 )
-from .embedding import SentEmbedding
+import embedding
 import nltk
 import numpy as np
 import pandas as pd
@@ -27,7 +27,7 @@ normalizer = Normalizer()
 
 def text2vec(candidates, sent2vec_model_path="sent2vec.model", sent2vecModel=None):
     if sent2vecModel is None:
-        sent2vec_model = SentEmbedding(sent2vec_model_path)
+        sent2vec_model = embedding.SentEmbedding(sent2vec_model_path)
     else:
         sent2vec_model = sent2vecModel
     candidate_vector = [[sent2vec_model[candidate] for candidate in candidates]]
@@ -138,7 +138,7 @@ def embedRank(text, keyword_num, sent2vecModel=None, posTaggerModel=None):
 
 
 if __name__ == "__main__":
-    text = next('ضمن عرض سلام و خسته نباشید خدمت شما تی‌ای محترمه، این یک جمله برای تست کارایی برنامه است.')
+    text = 'ضمن عرض سلام و خسته نباشید خدمت شما تی‌ای محترمه، این یک جمله برای تست کارایی برنامه است.'
     keyword_num = 5
     keywords = embedRank(text, keyword_num)
     print(keywords)

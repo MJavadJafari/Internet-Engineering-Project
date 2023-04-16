@@ -2,7 +2,7 @@
 """
 این ماژول شامل کلاس‌ها و توابعی برای تبدیل کلمه یا متن به برداری از اعداد است.
 """
-from . import word_tokenize, Normalizer
+from hazm import word_tokenize, Normalizer
 import multiprocessing
 import warnings
 from gensim.test.utils import datapath
