@@ -387,4 +387,14 @@ pip-selfcheck.json
 # Virtualenv
 # http://iamzed.com/2009/05/07/a-primer-on-virtualenv/
 
+# model
+.model
+
+# numpy
+.npy
+
 # End of https://www.toptal.com/developers/gitignore/api/django,python,virtualenv,venv,pycharm
+/recommender/sent2vec-naab.model.syn1neg.npy
+/recommender/sent2vec-naab.model.wv.vectors.npy
+/recommender/sent2vec-naab.model
+/recommender/postagger.model
