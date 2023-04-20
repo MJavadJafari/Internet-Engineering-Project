@@ -2,7 +2,7 @@ from django.contrib import admin
 from django.urls import path, include
 
 from Book.views import BookInfo, RegisterBooks, AllBooks, AddRequest, Requests_to_me, My_requests, ConfirmDonate, \
-    DeleteBook, DeleteRequest, ReportRequest, ReceiveBook, SingleBook
+    DeleteBook, DeleteRequest, ReportRequest, ReceiveBook, BookInfoWithSuggestion
 
 urlpatterns = [
     path('<int:pk>/', BookInfo.as_view()),
@@ -16,6 +16,6 @@ urlpatterns = [
     path('request/delete/', DeleteRequest.as_view()),
     path('request/report/', ReportRequest.as_view()),
     path('request/receivebook/', ReceiveBook.as_view()),
-    path('single/<int:pk>/', SingleBook.as_view()),
+    path('info-suggestion/<int:pk>/', BookInfoWithSuggestion.as_view()),
     # path('mybooks/', MyBooks.as_view()),
 ]

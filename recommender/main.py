@@ -22,8 +22,10 @@ class SingletonRecommender:
         self.embedding_model = SentEmbedding(model_path= sent2vec_path)
         self.posTagger = POSTagger(model = posTagger_path)
         tmp_dic = {}
+        print(book_data)
         for item in book_data:
             summary = book_data[item]
+            item = int(item)
             keywords = np.unique(embedRank.embedRank(summary, max(4, len(summary.split()) / 8), self.embedding_model, self.posTagger))
             tmp_dic[item] = [self.embedding_model[keyword] for keyword in keywords]
         self.book_data = tmp_dic
@@ -52,7 +54,9 @@ class SingletonRecommender:
 
 @app.route('/init_model', methods=['POST'])
 def init_model():
-    book_data = request.form.get('book_data')
+    # book_data = request.form.get('book_data')
+    book_data = request.get_json()
+    print(book_data)
     recommender.init_model(book_data, sent2vec_path, posTagger_path)
     return 'success'
 
@@ -61,6 +65,7 @@ def init_model():
 def insert_book():
     id = int(request.form.get('id'))
     summary = request.form.get('summary')
+
     result = recommender.insert_book(id, summary)
     print(result)
     return jsonify(result)
@@ -87,5 +92,5 @@ def ask_book():
 
 if __name__ == '__main__':
     recommender = SingletonRecommender()
-    recommender.init_model({})
+    # recommender.init_model({})
     app.run(port=5000)

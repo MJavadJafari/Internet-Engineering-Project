@@ -100,6 +100,8 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
+FLASK_SERVER_ADDRESS = 'http://127.0.0.1:5000'
+
 ROOT_URLCONF = 'net.urls'
 
 TEMPLATES = [
