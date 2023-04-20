@@ -4,6 +4,8 @@ from hazm import POSTagger
 from sklearn.metrics.pairwise import cosine_similarity
 import embedRank
 from flask import Flask, request
+from SequenceTagger import POSTagger
+
 
 
 class SingletonRecommender:
