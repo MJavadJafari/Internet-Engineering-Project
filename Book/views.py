@@ -1,4 +1,5 @@
 import random
+import requests
 
 from django.contrib.auth import get_user_model
 from rest_framework import filters, permissions
@@ -19,6 +20,35 @@ class RegisterBooks(CreateAPIView):
         permissions.IsAuthenticated
     ]
     serializer_class = BookSerializer
+
+
+class SingleBook(APIView):
+    permission_classes = [
+        permissions.IsAuthenticated
+    ]
+
+    def get(self, request, pk):
+        try:
+            book = Book.objects.get(book_id=pk)
+        except:
+            return Response({"Invalid request"}, status=HTTP_400_BAD_REQUEST)
+        
+        req = {
+            'id' : book.id,
+        } 
+        res = requests.post('/ask_book', data=req)
+        if res.status_code == 200:
+            similar_books = res.json()
+        else:
+            similar_books = []
+            print(f'Request failed with status {res.status_code}: {res.text}')    
+
+
+        response = {
+            "book": BookSerializer(book).data,
+            "similar_books": BookSerializer(similar_books, many=True).data
+        }
+        return Response(response, status=HTTP_200_OK)
 
 
 class AllBooks(ListAPIView):
