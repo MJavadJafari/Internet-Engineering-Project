@@ -4,6 +4,8 @@ from hazm import POSTagger
 from sklearn.metrics.pairwise import cosine_similarity
 import embedRank
 from flask import Flask, request
+from SequenceTagger import POSTagger
+
 
 
 class SingletonRecommender:
@@ -13,9 +15,9 @@ class SingletonRecommender:
             cls.instance = super(SingletonRecommender, cls).__new__(cls)
         return cls.instance
 
-    def init_model(self, book_data):
-        self.embedding_model = SentEmbedding(model_path= '/home/ebrahim/Desktop/sent2vec/sent2vec-naab.model')
-        self.posTagger = POSTagger(model = '/home/ebrahim/training/postagger.model')
+    def init_model(self, book_data, sent2vec_path = '/home/ebrahim/Desktop/sent2vec/sent2vec-naab.model', posTagger_path = '/home/ebrahim/training/postagger.model'):
+        self.embedding_model = SentEmbedding(model_path= sent2vec_path)
+        self.posTagger = POSTagger(model = posTagger_path)
         tmp_dic = {}
         for item in book_data:
             summary = book_data[item]
@@ -69,13 +71,15 @@ if __name__ == '__main__':
 @app.route('/init_model')
 def init_model():
     book_data = request.args.get('book_data')
-    recommender.init_model(book_data)
+    sent2vec_path = request.args.get('sent2vec_path')
+    posTagger_path = request.args.get('posTagger_path')
+    recommender.init_model(book_data, sent2vec_path, posTagger_path)
 
 @app.route('/insert_book')
 def insert_book():
     id = request.args.get('id')
     summary = request.args.get('summary')
-    recommender.insert_book(id, summary)
+    return recommender.insert_book(id, summary)
 
 @app.route('/delete_book')
 def delete_book():
@@ -89,5 +93,5 @@ def print_books():
 @app.route('/ask_book')
 def ask_book():
     id = request.args.get('id')
-    recommender.ask_book(id)
+    return recommender.ask_book(id)
 
