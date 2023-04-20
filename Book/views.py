@@ -1,4 +1,5 @@
 import random
+import requests
 
 from django.contrib.auth import get_user_model
 from rest_framework import filters, permissions
@@ -32,8 +33,16 @@ class SingleBook(APIView):
         except:
             return Response({"Invalid request"}, status=HTTP_400_BAD_REQUEST)
         
-        # get similar books
-        # similar_books = 
+        req = {
+            'id' : book.id,
+        } 
+        res = requests.post('/ask_book', data=req)
+        if res.status_code == 200:
+            similar_books = res.json()
+        else:
+            similar_books = []
+            print(f'Request failed with status {res.status_code}: {res.text}')    
+
 
         response = {
             "book": BookSerializer(book).data,
