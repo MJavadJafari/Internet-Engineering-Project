@@ -21,6 +21,27 @@ class RegisterBooks(CreateAPIView):
     serializer_class = BookSerializer
 
 
+class SingleBook(APIView):
+    permission_classes = [
+        permissions.IsAuthenticated
+    ]
+
+    def get(self, request, pk):
+        try:
+            book = Book.objects.get(book_id=pk)
+        except:
+            return Response({"Invalid request"}, status=HTTP_400_BAD_REQUEST)
+        
+        # get similar books
+        # similar_books = 
+
+        response = {
+            "book": BookSerializer(book).data,
+            "similar_books": BookSerializer(similar_books, many=True).data
+        }
+        return Response(response, status=HTTP_200_OK)
+
+
 class AllBooks(ListAPIView):
     permission_classes = [
         permissions.IsAuthenticated
