@@ -2,6 +2,7 @@ from django.db.models.signals import post_save
 from django.db.models.signals import post_delete
 from django.dispatch import receiver
 from Book.models import BookRequest, Book
+import requests
 
 
 @receiver(post_save, sender=BookRequest)
@@ -22,6 +23,15 @@ def book_request_deleted(sender, instance, **kwargs):
 def book_created(sender, instance, created, **kwargs):
     if created:
         book = instance.book
-        # TODO: add keywords api
-        book.keywords = null
-        book.save()
+        request = {
+            'id': book.id,
+            'summary': book.summary,
+        }
+        response = requests.post('/insert_book', data=request)
+
+        if response.status_code == 200:
+            keywords = response.json()
+            book.keywords = keywords
+            book.save() 
+        else:
+            print(f'Request failed with status {response.status_code}: {response.text}')
