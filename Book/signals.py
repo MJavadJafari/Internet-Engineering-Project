@@ -35,3 +35,16 @@ def book_created(sender, instance, created, **kwargs):
             book.save() 
         else:
             print(f'Request failed with status {response.status_code}: {response.text}')
+
+@receiver(post_delete, sender=Book)
+def book_deleted(sender, instance, **kwargs):
+    book = instance.book
+    request = {
+        'id': book.id,
+    }
+    response = requests.post('/delete_book', data=request)
+
+    if response.status_code == 200:
+        print('Book deleted successfully')
+    else:
+        print(f'Request failed with status {response.status_code}: {response.text}')    
