@@ -1,12 +1,10 @@
 from django.conf import settings
 from django.http import FileResponse
 from rest_framework.exceptions import NotFound
-from rest_framework import permissions
 from rest_framework.views import APIView
 
 
 class GetFile(APIView):
-    permission_classes = [permissions.IsAuthenticated]
 
     def get(self, request, file_name, folder):
         try:
