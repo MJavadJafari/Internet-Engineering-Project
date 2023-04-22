@@ -1,27 +1,22 @@
 from django.apps import AppConfig
-
+import requests
+from django.conf import settings
 
 
 class BookConfig(AppConfig):
     default_auto_field = 'django.db.models.BigAutoField'
     name = 'Book'
 
-    # TODO: fix
+    def ready(self):
+        import Book.signals as signals
+        from Book.models import Book
 
-    def ready(self) -> None:
-        import Book.signals
+        try:
+            req = {}
+            for item in Book.objects.all():
+                req[item.book_id] = str(item.description)
 
-    # def ready(self):
-    #     try:
-    #         from Recommender.Recommender import SingletonRecommender
-    #         import os
-    #         from Book.models import Book
-    #         if os.environ.get('RUN_MAIN'):
-    #             rec = SingletonRecommender()
-    #             dic = {}
-    #             for item in Book.objects.all():
-    #                 dic[item.book_id] = item.description
-    #             rec.init_model(dic)
-    #     except Exception as e:
-    #         print(e)
+            response = requests.post(settings.FLASK_SERVER_ADDRESS + '/init_model', json=req)
+        except Exception as e:
+            print(e)
 

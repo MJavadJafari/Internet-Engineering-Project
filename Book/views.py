@@ -1,4 +1,6 @@
 import random
+import requests
+from django.conf import Settings, settings
 
 from django.contrib.auth import get_user_model
 from rest_framework import filters, permissions
@@ -19,6 +21,37 @@ class RegisterBooks(CreateAPIView):
         permissions.IsAuthenticated
     ]
     serializer_class = BookSerializer
+
+
+class BookInfoWithSuggestion(APIView):
+    permission_classes = [
+        permissions.IsAuthenticated
+    ]
+
+    def get(self, request, pk):
+        try:
+            book = Book.objects.get(book_id=pk)
+        except:
+            return Response({"Invalid request"}, status=HTTP_400_BAD_REQUEST)
+        
+        req = {
+            'id' : book.book_id,
+        }
+
+        try:
+            res = requests.post(settings.FLASK_SERVER_ADDRESS + '/ask_book', data=req)
+            if res.status_code == 200:
+                similar_books = Book.objects.filter(book_id__in=res.json())
+            else:
+                similar_books = Book.objects.all().exclude(book_id=book.book_id).order_by('?')[:5]
+        except:
+            similar_books = Book.objects.all().exclude(book_id=book.book_id).order_by('?')[:5]
+
+        response = {
+            "book": AllBooksSerializer(book, context={'request': request}).data,
+            "similar_books": AllBooksSerializer(similar_books, many=True, context={'request': request}).data,
+        }
+        return Response(response, status=HTTP_200_OK)
 
 
 class AllBooks(ListAPIView):
@@ -155,14 +188,6 @@ class DeleteBook(APIView):
         for req in all_requests:
             req.delete()
 
-        # delete book
-        # try:
-        #     from Recommender.Recommender import SingletonRecommender
-        #     rec = SingletonRecommender()
-        #     rec.delete_book(book.book_id)
-        # except Exception as e:
-        #     print(e)
-        # TODO: delete book from recommender
         book.delete()
         return Response({'Success'}, status=HTTP_200_OK)
 
