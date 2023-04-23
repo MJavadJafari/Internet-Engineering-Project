@@ -89,6 +89,13 @@ SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 
 TRACKING_CODE_QUERY_AM = 'tc'
 
+FRONT_SERVER_ADDRESS = 'kahroba.netlify.app/'
+SUCCESS_PAYMENT_REDIRECT_URL = FRONT_SERVER_ADDRESS + '/success-payment'
+FAILED_PAYMENT_REDIRECT_URL = FRONT_SERVER_ADDRESS + '/fail-payment'
+
+IS_PYTHONANYWHERE = True
+
+
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',

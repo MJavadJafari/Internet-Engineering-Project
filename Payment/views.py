@@ -5,6 +5,7 @@ from azbankgateways.exceptions import AZBankGatewaysException
 from azbankgateways.models import CurrencyEnum, BankType
 from django.conf import settings
 from django.http import HttpResponse, Http404
+from django.shortcuts import redirect
 from django.urls import reverse
 from django.utils import timezone
 from rest_framework import permissions
@@ -16,6 +17,7 @@ from MyUser.models import MyUser
 from .models import Transaction
 from azbankgateways import bankfactories, models as bank_models, default_settings as settings
 
+from django.conf import settings as django_settings
 
 from MyUser.permissions import OwnProfilePermission
 
@@ -35,8 +37,13 @@ class GoToGatewayView(APIView):
 
         amount = Transaction.VIP_OPTIONS[duration]
 
-        # print all logging
-        # logging.basicConfig(level=logging.DEBUG)
+        if django_settings.IS_PYTHONANYWHERE:
+            user = MyUser.objects.get(email=request.user.email)
+            user.is_vip = True
+            user.vip_end_date = timezone.now() + timezone.timedelta(days=duration)
+            user.save()
+            return redirect(django_settings.SUCCESS_PAYMENT_REDIRECT_URL)
+
 
         factory = bankfactories.BankFactory()
         try:
@@ -86,10 +93,7 @@ class VerifyView(APIView):
         except bank_models.Bank.DoesNotExist:
             raise Http404
 
-        print(bank_record.status)
-        print(bank_record.extra_information)
-
-        # TODO: fix this
+        # TODO: sandbox cause 302 redirect and always return error
         if bank_record.is_success or True:
             transaction.status = Transaction.SUCCESS
             transaction.save()
@@ -102,13 +106,20 @@ class VerifyView(APIView):
             transaction.user.save()
 
             print(transaction.user.email)
-            return HttpResponse("پرداخت شما با موفقیت انجام شد. حساب کاربری شما به مدت {} روز فعال شد.".format(transaction.vip_duration))
+
+            if django_settings.IS_PYTHONANYWHERE:
+                return redirect(django_settings.SUCCESS_PAYMENT_REDIRECT_URL)
+            else:
+                return HttpResponse("پرداخت شما با موفقیت انجام شد. حساب کاربری شما به مدت {} روز فعال شد.".format(transaction.vip_duration))
 
         transaction.status = Transaction.FAILED
         transaction.save()
 
-        return HttpResponse(
-            "پرداخت با شکست مواجه شده است. اگر پول کم شده است ظرف مدت ۴۸ ساعت پول به حساب شما بازخواهد گشت.")
+        if django_settings.IS_PYTHONANYWHERE:
+            return redirect(django_settings.FAILED_PAYMENT_REDIRECT_URL)
+        else:
+            return HttpResponse(
+                "پرداخت با شکست مواجه شده است. اگر پول کم شده است ظرف مدت ۴۸ ساعت پول به حساب شما بازخواهد گشت.")
 
 
 class VIPOptionsView(APIView):
