@@ -71,7 +71,7 @@ def embedRankExtraction(
     beta=0.8,
 ):
     
-    N = min(len(all_candidates), keyword_num)
+    N = int(min(len(all_candidates), keyword_num))
 
     selected_candidates = []
     unselected_candidates = [i for i in range(len(all_candidates))]

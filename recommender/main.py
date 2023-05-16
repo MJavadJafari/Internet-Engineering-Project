@@ -39,9 +39,6 @@ class SingletonRecommender:
     def delete_book(self, id):
         self.book_data.pop(id)
 
-    def print_books(self):
-        print(self.book_data)
-
     def ask_book(self, id: int):
         selected_vec = self.book_data[id]
         sim_dic = {}
