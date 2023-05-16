@@ -66,25 +66,6 @@ class AllBooks(ListAPIView):
 
     queryset = Book.objects.all().order_by('-created_at')
 
-    def get_queryset(self):
-        # try:
-        #     from Recommender.Recommender import SingletonRecommender
-        #     for book in Book.objects.all():
-        #         book.ranking = 0
-        #         book.save()
-        #     book = BookRequest.objects.filter(user=self.request.user).order_by('-created_at')[0]
-        #     rec = SingletonRecommender()
-        #     ans = rec.ask_book(book.book_id)
-        #     for i in range(len(ans)):
-        #         x = Book.objects.get(book_id=ans[i])
-        #         x.ranking = len(ans) - i
-        #         x.save()
-        #     return Book.objects.all().order_by('-ranking', '-created_at')
-        # except Exception as e:
-        #     print(e)
-        # TODO: add ranking
-        return Book.objects.all().order_by('-created_at')
-
 
 class BookInfo(RetrieveAPIView):
     permission_classes = [
