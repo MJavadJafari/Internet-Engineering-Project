@@ -28,25 +28,25 @@ def book_created(sender, instance, created, **kwargs):
             'id': instance.book_id,
             'summary': str(instance.description),
         }
-        print(request)
 
-        try:
-            response = requests.post(settings.FLASK_SERVER_ADDRESS + '/insert_book', data=request)
-            if response.status_code == 200:
-                keywords = response.json()
-                instance.keywords = keywords
-            else:
+        if settings.USE_FLASK_SERVER:
+            try:
+                response = requests.post(settings.FLASK_SERVER_ADDRESS + '/insert_book', data=request)
+                if response.status_code == 200:
+                    keywords = response.json()
+                    instance.keywords = keywords
+                else:
+                    if settings.DEBUG:
+                        print(f'Request failed with status {response.status_code}: {response.text}')
+                        instance.keywords = instance.description.split(' ')[:5]
+                    else:
+                        instance.keywords = []
+            except:
                 if settings.DEBUG:
-                    print(f'Request failed with status {response.status_code}: {response.text}')
+                    print(f'Request failed')
                     instance.keywords = instance.description.split(' ')[:5]
                 else:
                     instance.keywords = []
-        except:
-            if settings.DEBUG:
-                print(f'Request failed')
-                instance.keywords = instance.description.split(' ')[:5]
-            else:
-                instance.keywords = []
 
         instance.save()
 
@@ -58,11 +58,12 @@ def book_deleted(sender, instance, **kwargs):
         'id': instance.book_id,
     }
 
-    try:
-        response = requests.post(settings.FLASK_SERVER_ADDRESS + '/delete_book', data=request)
-        if response.status_code == 200:
-            print('Book deleted successfully')
-        else:
-            print(f'Request failed with status {response.status_code}: {response.text}')
-    except:
-        print(f'Request failed')
+    if settings.USE_FLASK_SERVER:
+        try:
+            response = requests.post(settings.FLASK_SERVER_ADDRESS + '/delete_book', data=request)
+            if response.status_code == 200:
+                print('Book deleted successfully')
+            else:
+                print(f'Request failed with status {response.status_code}: {response.text}')
+        except:
+            print(f'Request failed')
