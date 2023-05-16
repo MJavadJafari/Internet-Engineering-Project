@@ -22,7 +22,6 @@ class SingletonRecommender:
         self.embedding_model = SentEmbedding(model_path= sent2vec_path)
         self.posTagger = POSTagger(model = posTagger_path)
         tmp_dic = {}
-        print(book_data)
         for item in book_data:
             summary = book_data[item]
             item = int(item)
@@ -47,13 +46,15 @@ class SingletonRecommender:
         similar_indices = sorted(sim_dic, key=sim_dic.get, reverse=True)
 
         return similar_indices[1:]
+    
+    def all_book_id(self):
+        return self.book_data.keys()
 
 
 @app.route('/init_model', methods=['POST'])
 def init_model():
     # book_data = request.form.get('book_data')
     book_data = request.get_json()
-    print(book_data)
     recommender.init_model(book_data, sent2vec_path, posTagger_path)
     return 'success'
 
@@ -64,7 +65,6 @@ def insert_book():
     summary = request.form.get('summary')
 
     result = recommender.insert_book(id, summary)
-    print(result)
     return jsonify(result)
 
 
@@ -75,9 +75,9 @@ def delete_book():
     return 'success'
 
 
-@app.route('/print_books')
-def print_books():
-    recommender.print_books()
+@app.route('/all_book_id')
+def all_book_id():
+    recommender.all_book_id()
     return 'success'
 
 

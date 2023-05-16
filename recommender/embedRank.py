@@ -138,8 +138,8 @@ def embedRank(text, keyword_num, sent2vecModel=None, posTaggerModel=None):
     return extractKeyword(candidates, keyword_num, sent2vecModel=sent2vecModel)
 
 
-if __name__ == "__main__":
-    text = 'ضمن عرض سلام و خسته نباشید خدمت شما تی‌ای محترمه، این یک جمله برای تست کارایی برنامه است.'
-    keyword_num = 5
-    keywords = embedRank(text, keyword_num)
-    print(keywords)
+# if __name__ == "__main__":
+    # text = 'ضمن عرض سلام و خسته نباشید خدمت شما تی‌ای محترمه، این یک جمله برای تست کارایی برنامه است.'
+    # keyword_num = 5
+    # keywords = embedRank(text, keyword_num)
+    # print(keywords)
