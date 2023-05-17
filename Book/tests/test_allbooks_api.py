@@ -6,7 +6,6 @@ from Book.serializers import AllBooksSerializer
 from rest_framework.test import APIRequestFactory
 
 
-
 class AllBooksTests(APITestCase):
 
     @classmethod
@@ -26,7 +25,6 @@ class AllBooksTests(APITestCase):
             phone_number='123456789',
         )
 
-
         # Create test books
         cls.book1 = Book.objects.create(
             name='Book 1',
@@ -42,21 +40,18 @@ class AllBooksTests(APITestCase):
             author='Author 2',
             is_donated=False,
             donator_id=cls.second_user.pk,
-            created_at = '2020-01-01'
+            created_at='2022-01-01'
         )
 
         cls.url = '/book/all/'
 
-
     def setUp(self):
         self.client.force_authenticate(user=self.user)
-
 
     def get_serializer_context(self, user):
         request = APIRequestFactory().get(self.url)
         request.user = user
         return {'request': request}
-
 
     def test_get_all_books_should_return_all_books(self):
         # Arrange
@@ -67,7 +62,8 @@ class AllBooksTests(APITestCase):
         # Assert
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(len(response.data), 2)
-        serialized_books = AllBooksSerializer([self.book1, self.book2], many=True, context=self.get_serializer_context(self.user)).data
+        serialized_books = AllBooksSerializer([self.book1, self.book2], many=True,
+                                              context=self.get_serializer_context(self.user)).data
         # there is no need to check for order of books, so we sort them first
         response_data = sorted(response.data, key=lambda x: x['book_id'])
         serialized_books = sorted(serialized_books, key=lambda x: x['book_id'])
@@ -83,9 +79,9 @@ class AllBooksTests(APITestCase):
         # Assert
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(len(response.data), 2)
-        serialized_books = AllBooksSerializer([self.book2, self.book1], many=True, context=self.get_serializer_context(self.user)).data
+        serialized_books = AllBooksSerializer([self.book2, self.book1], many=True,
+                                              context=self.get_serializer_context(self.user)).data
         self.assertEqual(response.data, serialized_books)
-
 
     def test_filter_books_by_donated_status_should_return_filtered_books(self):
         # Arrange
@@ -97,7 +93,8 @@ class AllBooksTests(APITestCase):
         # Assert
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(len(response.data), 1)
-        serialized_books = AllBooksSerializer([self.book1], many=True, context=self.get_serializer_context(self.user)).data
+        serialized_books = AllBooksSerializer([self.book1], many=True,
+                                              context=self.get_serializer_context(self.user)).data
         self.assertEqual(response.data, serialized_books)
 
     def test_filter_books_by_donator_should_return_filtered_books(self):
@@ -110,7 +107,8 @@ class AllBooksTests(APITestCase):
         # Assert
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(len(response.data), 1)
-        serialized_books = AllBooksSerializer([self.book1], many=True, context=self.get_serializer_context(self.user)).data
+        serialized_books = AllBooksSerializer([self.book1], many=True,
+                                              context=self.get_serializer_context(self.user)).data
         self.assertEqual(response.data, serialized_books)
 
     def test_search_books_by_name_should_return_matching_books(self):
@@ -125,9 +123,9 @@ class AllBooksTests(APITestCase):
         self.assertEqual(len(response.data), 1)
         request = APIRequestFactory().get('/book/all/')
         request.user = self.user
-        serialized_books = AllBooksSerializer([self.book1], many=True, context=self.get_serializer_context(self.user)).data
+        serialized_books = AllBooksSerializer([self.book1], many=True,
+                                              context=self.get_serializer_context(self.user)).data
         self.assertEqual(response.data, serialized_books)
-
 
     def test_not_matching_search_should_return_no_books(self):
         # Arrange
@@ -140,7 +138,6 @@ class AllBooksTests(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(len(response.data), 0)
 
-
     def test_no_authentication_should_return_401(self):
         # Arrange
         self.client.force_authenticate(user=None)
@@ -150,4 +147,3 @@ class AllBooksTests(APITestCase):
 
         # Assert
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
-

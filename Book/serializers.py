@@ -42,19 +42,22 @@ class BookRequestSerializer(serializers.ModelSerializer):
         read_only_fields = ['status', 'created_at', 'id']
 
     def create(self, validated_data):
+        print('***********')
         user = self.context['request'].user
+        book = validated_data['book']
+        if book.is_donated:
+            raise serializers.ValidationError({'detail': 'Book is already donated'})
+
         prev_req = BookRequest.objects.filter(**validated_data, user=self.context['request'].user)
-        print(prev_req)
         if prev_req.exists():
             return prev_req[0]
 
         if user.rooyesh == 0:
-            raise serializers.ValidationError('Not enough rooyesh')
+            raise serializers.ValidationError({'detail': 'Not enough rooyesh'})
 
         request = BookRequest.objects.create(**validated_data, user=self.context['request'].user)
         user.change_rooyesh(-1)
 
-        print(user.rooyesh)
         return request
 
 
