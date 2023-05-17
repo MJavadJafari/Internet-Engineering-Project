@@ -36,4 +36,5 @@ jobs:
         run: pip install -r requirements.txt
       - name: Deploy
         run: |
-          gunicorn net.wsgi:application --bind 0.0.0.0:8000
+          gunicorn net.wsgi:application --bind 0.0.0.0:8000 & sleep 5
+          curl localhost:8000
