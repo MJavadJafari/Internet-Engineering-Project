@@ -11,13 +11,6 @@ class BookSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         book = Book.objects.create(**validated_data, donator=self.context['request'].user)
-        # try:
-        #     from Recommender.Recommender import SingletonRecommender
-        #     rec = SingletonRecommender()
-        #     rec.insert_book(book.book_id, book.description)
-        # except Exception as e:
-        #     print(e)
-        # TODO: add book to recommender
         return book
 
 
@@ -42,7 +35,6 @@ class BookRequestSerializer(serializers.ModelSerializer):
         read_only_fields = ['status', 'created_at', 'id']
 
     def create(self, validated_data):
-        print('***********')
         user = self.context['request'].user
         book = validated_data['book']
         if book.is_donated:
