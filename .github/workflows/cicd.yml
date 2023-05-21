@@ -20,6 +20,8 @@ jobs:
         run: python manage.py makemigrations
       - name: Migrate
         run: python manage.py migrate
+      - name: Collectstatic
+        run: python manage.py collectstatic --noinput
 
   test:
     runs-on: ubuntu-latest
@@ -32,12 +34,18 @@ jobs:
           python-version: 3.8
       - name: Install dependencies
         run: pip install -r requirements.txt
+      - name: MakeMigrations
+        run: python manage.py makemigrations
+      - name: Migrate
+        run: python manage.py migrate
+      - name: Collectstatic
+        run: python manage.py collectstatic --noinput
       - name: Test
         run: python manage.py test
 
   deploy:
     runs-on: ubuntu-latest
-    needs: build
+    needs: test
     steps:
       - uses: actions/checkout@v2
       - name: Set up Python
@@ -46,6 +54,12 @@ jobs:
           python-version: 3.8
       - name: Install dependencies
         run: pip install -r requirements.txt
+      - name: MakeMigrations
+        run: python manage.py makemigrations
+      - name: Migrate
+        run: python manage.py migrate
+      - name: Collectstatic
+        run: python manage.py collectstatic --noinput
       - name: Deploy
         run: |
           gunicorn net.wsgi:application --bind 0.0.0.0:8000 & sleep 5
