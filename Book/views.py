@@ -82,18 +82,6 @@ class AddRequest(CreateAPIView):
     serializer_class = BookRequestSerializer
 
 
-class Requests_to_me(ListAPIView):
-    permission_classes = [
-        permissions.IsAuthenticated
-    ]
-    serializer_class = BookRequestSerializer
-    filter_backends = (DjangoFilterBackend,)
-    filterset_fields = ['book', 'status']
-
-    def get_queryset(self):
-        return BookRequest.objects.filter(book__donator=self.request.user)
-
-
 class My_requests(ListAPIView):
     permission_classes = [
         permissions.IsAuthenticated
@@ -233,5 +221,4 @@ class ReceiveBook(APIView):
         else:
             donator.change_credit(2)
         donator.save()
-
         return Response({'Success'}, status=HTTP_200_OK)
