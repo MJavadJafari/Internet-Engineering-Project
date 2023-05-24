@@ -1,10 +1,9 @@
 import numpy as np
-from embedding import SentEmbedding
-from hazm import POSTagger
+from hazm import SentEmbedding
 from sklearn.metrics.pairwise import cosine_similarity
 import embedRank
 from flask import Flask, request, make_response, jsonify
-from SequenceTagger import POSTagger
+from hazm import POSTagger
 
 app = Flask(__name__)
 sent2vec_path = r'C:\Users\delta\PycharmProjects\net\recommender\sent2vec-naab.model'

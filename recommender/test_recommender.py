@@ -1,13 +1,13 @@
 from unittest.mock import patch
-from SequenceTagger import POSTagger
+from hazm import POSTagger
 from flask import Flask, request, make_response, jsonify
 from main import *
-from embedding import *
+from hazm.embedding import SentEmbedding
 
 
 #prepared data
-embedding_path = '/home/ebrahim/training/sent2vecModel/sent2vec-test.model'
-tagger_path = '/home/ebrahim/repos/Kahroba/Internet-Engineering-Project/pos_tagger.model'
+embedding_path = r'/Users/e_ghafour/models/hazm/sent2vec/sent2vec-naab.model'
+tagger_path = r'/Users/e_ghafour/models/hazm/pos_tagger.model'
 big_sample_text = 'سفارت ایران در مادرید درباره فیلم منتشرشده از «حسن قشقاوی» در مراسم سال نو در کاخ سلطنتی اسپانیا و حاشیه‌سازی‌ها در فضای مجازی اعلام کرد: به تشریفات دربار کتباً اعلام شد سفیر بدون همراه در مراسم حضور خواهد داشت و همچون قبل به دلایل تشریفاتی نمی‌تواند با ملکه دست بدهد. همان‌گونه که کارشناس رسمی تشریفات در توضیحات خود به یک نشریه اسپانیایی گفت این موضوع توضیح مذهبی داشته و هرگز به معنی بی‌احترامی به مقام و شخصیت زن آن هم در سطح ملکه محترمه یک کشور نیست.'
 small_sample_text = 'در جنگل ایران گونه‌های جانوری زیادی وجود دارد.'
 small_sample_text1 = 'آمازون شامل ببرهای وحشی زیادی است.'
@@ -41,6 +41,8 @@ def test_delete_book_when_input_id_is_correct_should_not_exist_in_all_book():
 
 
 # if __name__ == '__main__':
+#     test_ask_book_when_input_id_is_correct_should_return_2_id()
+
 #     app = Flask(__name__)
 #     print('azinja')
 #     with app.test_request_context():
