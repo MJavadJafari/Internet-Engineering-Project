@@ -2,7 +2,7 @@ from unittest.mock import patch
 from hazm import POSTagger
 from flask import Flask, request, make_response, jsonify
 from main import *
-from hazm.embedding import SentEmbedding
+from hazm import SentEmbedding
 
 
 #prepared data
@@ -37,7 +37,21 @@ def test_delete_book_when_input_id_is_correct_should_not_exist_in_all_book():
     assert 6 not in output, f'the 6th id should be deleted but it is available now'
     recommender.insert_book(id=6, summary=big_sample_text)
 
+def test_text2vec_when_model_is_none_should_return_2_outputs():
+    candidate_vector, text_vector = embedRank.text2vec(['دریا', 'ایران'], sent2vec_model_path=embedding_path)
+    assert len(candidate_vector[0]) == 2, f'the len of input is 2, so the output should return a list with 2 elements'
+    assert len(text_vector) == 300, f'the output of the embedding is in 300 dimention but it has {len(text_vector)} dimentions'
 
+def test_posTagger_of_embedRank_when_model_is_none_should_return_list_of_tuplels():
+    tagged_sent = embedRank.posTagger(text=small_sample_text, pos_model_path=tagger_path)
+    assert tagged_sent[0][0][0] == 'در', f'the output of the function is tagged in a wrong way'
+    assert tagged_sent[0][0][1] == 'ADP', f'the tag of the input is wrong'
+
+def test_vectorSimilarity_of_embedRank_False_norm_should_return_2_arrays_of_len_2():
+    candidate_vector, text_vector = embedRank.text2vec(['دریا', 'ایران'], sent2vecModel=recommender.embedding_model)
+    candidate_sim_text, candidate_sim_candidate = embedRank.vectorSimilarity(candidate_vector, text_vector, norm=False)
+    assert len(candidate_sim_text) == 2, f'the output len should be 2 but it is {len(candidate_sim_text)}'
+    assert candidate_sim_candidate.shape == (2,2), f'the output matrix shape should be (2, 2) but the shape is {candidate_sim_candidate.shape}'
 
 
 # if __name__ == '__main__':
@@ -49,7 +63,3 @@ def test_delete_book_when_input_id_is_correct_should_not_exist_in_all_book():
 #         routes = [str(rule) for rule in app.url_map.iter_rules()]
 #         print(routes)
 #     app.run(port=5000)
-
-
-    
-
