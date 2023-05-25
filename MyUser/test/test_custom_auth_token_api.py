@@ -129,3 +129,18 @@ class CustomAuthTokenTests(APITestCase):
         self.assertEqual(response.data['user_id'], self.user.user_id)
         self.assertEqual(response.data['rooyesh'], self.user.rooyesh)
 
+    def test_login_should_return_400_when_user_is_not_active(self):
+        # Arrange
+        data = {
+            'username': self.user.email,
+            'password': self.user.password
+        }
+        self.user.is_active = False
+        self.user.refresh_from_db()
+
+        # Act
+        response = self.client.post(self.url, data, format='json')
+
+        # Assert
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(response.data['non_field_errors'][0], 'Unable to log in with provided credentials.')
