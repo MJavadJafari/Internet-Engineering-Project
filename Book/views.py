@@ -147,17 +147,18 @@ class DeleteBook(APIView):
         all_requests = BookRequest.objects.filter(book=book)
         registered_users = MyUser.objects.filter(user_id__in=all_requests.values_list('user'))
 
-        print(registered_users)
         # return rooyesh
         for user in registered_users:
             if user != self.request.user:
                 user.change_rooyesh(1)
+                user.save(update_fields=['rooyesh'])
 
         # delete request
         for req in all_requests:
             req.delete()
 
         book.delete()
+
         return Response({'Success'}, status=HTTP_200_OK)
 
 
