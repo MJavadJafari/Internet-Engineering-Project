@@ -23,7 +23,6 @@ class DeleteRequestTestCase(APITestCase):
             author='Author 1',
             is_donated=False,
             donator_id=cls.user.pk,
-            created_at='2021-01-01'
         )
 
         # Create test books
@@ -33,7 +32,6 @@ class DeleteRequestTestCase(APITestCase):
             author='Author 2',
             is_donated=True,
             donator_id=cls.user.pk,
-            created_at='2021-01-01'
         )
 
         # Create test books

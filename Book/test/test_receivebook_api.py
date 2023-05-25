@@ -1,4 +1,7 @@
+import datetime
+
 from django.contrib.auth import get_user_model
+from django.utils.timezone import get_current_timezone
 from rest_framework import status
 from rest_framework.test import APITestCase
 from django.urls import reverse
@@ -29,7 +32,7 @@ class ReceiveBookTestCase(APITestCase):
             name='John Doe',
             phone_number='123456789',
             is_vip=True,
-            vip_end_date='2090-01-01'
+            vip_end_date=datetime.datetime.now(tz=get_current_timezone()) + datetime.timedelta(days=30)
         )
 
         # Create test books
@@ -40,7 +43,6 @@ class ReceiveBookTestCase(APITestCase):
             is_donated=True,
             is_received=False,
             donator_id=cls.donator_user.pk,
-            created_at='2021-01-01'
         )
 
         # Create test books
@@ -50,7 +52,6 @@ class ReceiveBookTestCase(APITestCase):
             author='Author 2',
             is_donated=True,
             donator_id=cls.vip_donator.pk,
-            created_at='2021-01-01'
         )
 
         # Create test books
@@ -60,7 +61,6 @@ class ReceiveBookTestCase(APITestCase):
             author='Author 3',
             is_donated=False,
             donator_id=cls.donator_user.pk,
-            created_at='2021-01-01'
         )
 
         cls.book4 = Book.objects.create(
@@ -70,7 +70,6 @@ class ReceiveBookTestCase(APITestCase):
             is_donated=True,
             is_received=True,
             donator_id=cls.donator_user.pk,
-            created_at='2021-01-01'
         )
 
         # Create book-request

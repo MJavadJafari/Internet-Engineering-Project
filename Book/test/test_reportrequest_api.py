@@ -26,7 +26,6 @@ class AllBooksTests(APITestCase):
             author='Author 1',
             is_donated=True,
             donator_id=cls.user.pk,
-            created_at='2021-01-01'
         )
 
         # Create test books
@@ -36,7 +35,6 @@ class AllBooksTests(APITestCase):
             author='Author 2',
             is_donated=True,
             donator_id=cls.user.pk,
-            created_at='2021-01-01'
         )
 
         # Create test books
@@ -46,7 +44,6 @@ class AllBooksTests(APITestCase):
             author='Author 3',
             is_donated=True,
             donator_id=cls.user.pk,
-            created_at='2021-01-01'
         )
 
         cls.book4 = Book.objects.create(
@@ -55,7 +52,6 @@ class AllBooksTests(APITestCase):
             author='Author 4',
             is_donated=False,
             donator_id=cls.user.pk,
-            created_at='2021-01-01'
         )
 
         # Create book-request

@@ -43,7 +43,6 @@ class MyRequestsTests(APITestCase):
             author='Author 1',
             is_donated=False,
             donator_id=cls.user.pk,
-            created_at='2022-01-01'
         )
 
         cls.book2 = Book.objects.create(
@@ -52,7 +51,6 @@ class MyRequestsTests(APITestCase):
             author='Author 2',
             is_donated=False,
             donator_id=cls.second_user.pk,
-            created_at='2022-01-01'
         )
         cls.url = '/book/request/myrequests/'
 
