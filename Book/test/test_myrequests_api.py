@@ -52,6 +52,15 @@ class MyRequestsTests(APITestCase):
             is_donated=False,
             donator_id=cls.second_user.pk,
         )
+
+        cls.book3 = Book.objects.create(
+            name='Book 3',
+            description='Description 3',
+            author='Author 3',
+            is_donated=True,
+            donator_id=cls.second_user.pk,
+        )
+
         cls.url = '/book/request/myrequests/'
 
     def setUp(self):
@@ -102,6 +111,23 @@ class MyRequestsTests(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(len(response.data), 1)
         self.assertEqual(response.data[0]['user'], self.user.pk)
+
+
+    def test_get_approved_request_should_return_donator_phone_number_as_well(self):
+        # Arrange
+        BookRequest.objects.create(
+            book=self.book3,
+            user=self.user,
+            status=BookRequest.APPROVED,
+            created_at='2021-01-01'
+        )
+
+        # Act
+        response = self.client.get(self.url)
+
+        # Assert
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data[0]['phone_number'], self.book3.donator.phone_number)
 
 
     def test_get_my_requests_should_return_only_my_requests_with_status(self):

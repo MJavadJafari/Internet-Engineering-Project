@@ -40,8 +40,6 @@ class DeleteBookTests(APITestCase):
             is_donated=False,
             donator_id=cls.second_user.pk,
         )
-        # cls.book3 = Book.objects.create(
-
 
         cls.url = '/book/delete/'
 

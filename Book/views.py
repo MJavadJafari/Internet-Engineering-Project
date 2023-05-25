@@ -33,19 +33,22 @@ class BookInfoWithSuggestion(APIView):
             book = Book.objects.get(book_id=pk)
         except:
             return Response({"Invalid request"}, status=HTTP_400_BAD_REQUEST)
-        
+
         req = {
-            'id' : book.book_id,
+            'id': book.book_id,
         }
 
-        try:
-            res = requests.post(settings.FLASK_SERVER_ADDRESS + '/ask_book', data=req)
-            if res.status_code == 200:
-                similar_books = Book.objects.filter(book_id__in=res.json())
-            else:
-                similar_books = Book.objects.all().exclude(book_id=book.book_id).order_by('?')[:5]
-        except:
-            similar_books = Book.objects.all().exclude(book_id=book.book_id).order_by('?')[:5]
+        if settings.USE_FLASK_SERVER:
+            try:
+                res = requests.post(settings.FLASK_SERVER_ADDRESS + '/ask_book', data=req)
+                if res.status_code == 200:
+                    similar_books = Book.objects.filter(book_id__in=res.json())
+                else:
+                    similar_books = Book.objects.filter(is_donated=False).exclude(book_id=book.book_id).order_by('?')[:5]
+            except:
+                similar_books = Book.objects.filter(is_donated=False).exclude(book_id=book.book_id).order_by('?')[:5]
+        else:
+            similar_books = Book.objects.filter(is_donated=False).exclude(book_id=book.book_id).order_by('?')[:5]
 
         response = {
             "book": AllBooksSerializer(book, context={'request': request}).data,
@@ -100,7 +103,6 @@ class ConfirmDonate(APIView):
     ]
 
     def post(self, request):
-        print(request.data)
         try:
             book = Book.objects.get(is_donated=False, donator=self.request.user, book_id=request.data['book'])
         except:
@@ -214,7 +216,7 @@ class ReceiveBook(APIView):
 
         donator = book.donator
         number_of_request = book.number_of_request
-        donator.change_rooyesh((number_of_request/30) + 2)
+        donator.change_rooyesh((number_of_request / 30) + 2)
 
         is_donator_vip = donator.is_user_vip()
         if is_donator_vip:
