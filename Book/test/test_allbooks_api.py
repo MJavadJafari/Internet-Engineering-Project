@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from rest_framework import status
 from rest_framework.test import APITestCase
 from django.contrib.auth import get_user_model
@@ -32,7 +34,7 @@ class AllBooksTests(APITestCase):
             author='Author 1',
             is_donated=True,
             donator_id=cls.user.pk,
-            created_at='2021-01-01'
+            created_at=datetime(2021, 1, 1, 0, 0, 0, 0)
         )
         cls.book2 = Book.objects.create(
             name='Book 2',
@@ -40,7 +42,7 @@ class AllBooksTests(APITestCase):
             author='Author 2',
             is_donated=False,
             donator_id=cls.second_user.pk,
-            created_at='2022-01-01'
+            created_at=datetime(2021, 1, 2, 0, 0, 0, 0)
         )
 
         cls.url = '/book/all/'
