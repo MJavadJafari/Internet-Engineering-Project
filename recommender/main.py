@@ -47,7 +47,7 @@ class SingletonRecommender:
         return similar_indices[1:]
     
     def all_book_id(self):
-        return self.book_data.keys()
+        return list(self.book_data.keys())
 
 
 @app.route('/init_model', methods=['POST'])
@@ -76,17 +76,15 @@ def delete_book():
 
 @app.route('/all_book_id')
 def all_book_id():
-    recommender.all_book_id()
-    return 'success'
-
+    return jsonify(recommender.all_book_id())
+    
 
 @app.route('/ask_book', methods=['POST'])
 def ask_book():
     id = int(request.form.get('id'))
     return recommender.ask_book(id)
 
-
+recommender = SingletonRecommender()
 if __name__ == '__main__':
-    recommender = SingletonRecommender()
     # recommender.init_model({})
     app.run(port=5000)
