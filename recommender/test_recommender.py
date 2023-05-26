@@ -1,5 +1,6 @@
 from unittest.mock import patch
 import json
+import ast
 import pytest
 from hazm import POSTagger
 from flask import Flask, request, make_response, jsonify
@@ -31,7 +32,7 @@ def test_insert_book_when_input_big_sample_text_should_return_10_keywords():
 
 def test_insert_book_when_input_small_sample_text_should_return_4_keywords():
     output = test_recommender.insert_book(2, small_sample_text)
-    assert len(output) == 4, f'the number of the keywords should be 10 but it is {len(output)}.'
+    assert len(output) == 4, f'the number of the keywords should be 4 but it is {len(output)}.'
     test_recommender.delete_book(id=2)
 
 def test_ask_book_when_input_id_is_correct_should_return_2_id():
@@ -61,13 +62,36 @@ def test_vectorSimilarity_of_embedRank_False_norm_should_return_2_arrays_of_len_
     assert len(candidate_sim_text) == 2, f'the output len should be 2 but it is {len(candidate_sim_text)}'
     assert candidate_sim_candidate.shape == (2,2), f'the output matrix shape should be (2, 2) but the shape is {candidate_sim_candidate.shape}'
 
+def test_Flask_insert_book_when_input_small_sample_text_should_return_4_keywords(client):
+    book_data = {'id': 2, 'summary': small_sample_text}
+    response = client.post('/insert_book', data=book_data)
+    output = ast.literal_eval(response.data.decode('utf-8'))
+    assert len(output) == 4, f'the number of the keywords should be 4 but it is {len(output)}.'
+    test_recommender.delete_book(id=2)
+    assert response.status_code == 200
 
+def test_Flask_delete_book_when_input_id_is_correct_should_not_exist_in_all_book(client):
+    book_id = {'id': 6}
+    response = client.post('/delete_book', data=book_id)
+    output = test_recommender.all_book_id()
+    assert response.status_code == 200
+    assert response.data.decode('utf-8') == 'success'
+    assert 6 not in output, f'the 6th id should be deleted but it is available now'
+    test_recommender.insert_book(id=6, summary=big_sample_text)
 
-def test_all_book_id_should_return_3_books_id(client):
+def test_Flask_all_book_id_should_return_3_books_id(client):
     response = client.get('/all_book_id')
     book_ids = json.loads(response.data)
     assert response.status_code == 200
     assert len(book_ids) == 3, f'there is only 3 books available in that object but it returns {len(book_ids)} book ids'
+
+def test_Flask_ask_book_when_input_id_is_correct_should_return_2_id(client):
+    book_id = {'id': 6}
+    response = client.post('/ask_book', data=book_id)
+    output = json.loads(response.data)
+    assert response.status_code == 200
+    assert len(output) == 2, f'the number of the ids should be 2 but it is {len(output)}.'
+    assert type(output[0]) ==int, f'type of each element should be int and not a {type(output[0])}'
 
 
 
