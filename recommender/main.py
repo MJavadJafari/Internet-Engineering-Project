@@ -5,10 +5,18 @@ import embedRank
 from flask import Flask, request, make_response, jsonify
 from hazm import POSTagger
 
-app = Flask(__name__)
-sent2vec_path = r'C:\Users\delta\PycharmProjects\net\recommender\sent2vec-naab.model'
-posTagger_path = r'C:\Users\delta\PycharmProjects\net\recommender\posTagger.model'
+big_sample_text = 'سفارت ایران در مادرید درباره فیلم منتشرشده از «حسن قشقاوی» در مراسم سال نو در کاخ سلطنتی اسپانیا و حاشیه‌سازی‌ها در فضای مجازی اعلام کرد: به تشریفات دربار کتباً اعلام شد سفیر بدون همراه در مراسم حضور خواهد داشت و همچون قبل به دلایل تشریفاتی نمی‌تواند با ملکه دست بدهد. همان‌گونه که کارشناس رسمی تشریفات در توضیحات خود به یک نشریه اسپانیایی گفت این موضوع توضیح مذهبی داشته و هرگز به معنی بی‌احترامی به مقام و شخصیت زن آن هم در سطح ملکه محترمه یک کشور نیست.'
+small_sample_text = 'در جنگل ایران گونه‌های جانوری زیادی وجود دارد.'
+small_sample_text1 = 'آمازون شامل ببرهای وحشی زیادی است.'
+sample_dict = {5:small_sample_text, 6:big_sample_text, 7:small_sample_text1}
 
+
+app = Flask(__name__)
+# sent2vec_path = r'C:\Users\delta\PycharmProjects\net\recommender\sent2vec-naab.model'
+# posTagger_path = r'C:\Users\delta\PycharmProjects\net\recommender\posTagger.model'
+
+sent2vec_path = r'~/models/hazm/light_sent2vec.model'
+posTagger_path = r'/Users/e_ghafour/models/hazm/pos_tagger.model'
 
 class SingletonRecommender:
 
@@ -35,7 +43,8 @@ class SingletonRecommender:
         return keywords.tolist()
 
     def delete_book(self, id):
-        self.book_data.pop(id)
+        if(id in self.book_data.keys()):
+            self.book_data.pop(id)
 
     def ask_book(self, id: int):
         selected_vec = self.book_data[id]
@@ -86,5 +95,9 @@ def ask_book():
 
 recommender = SingletonRecommender()
 if __name__ == '__main__':
+    #for locust...
+    recommender.init_model(sample_dict, sent2vec_path, posTagger_path)
+    print(recommender.all_book_id())
+    
     # recommender.init_model({})
     app.run(port=5000)

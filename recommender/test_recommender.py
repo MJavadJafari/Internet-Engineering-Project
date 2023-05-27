@@ -3,9 +3,7 @@ import json
 import ast
 import pytest
 from hazm import POSTagger
-from flask import Flask, request, make_response, jsonify
 from main import *
-from hazm import SentEmbedding
 
 
 #prepared data
