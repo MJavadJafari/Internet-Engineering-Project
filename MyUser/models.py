@@ -52,14 +52,16 @@ class MyUser(AbstractBaseUser):
     def has_module_perms(self, app_label):
         return True
 
-    def is_user_vip(self):
-        if self.vip_end_date is None:
-            return False
+    def update_vip_status(self):
         if self.vip_end_date < timezone.now():
             self.is_vip = False
             self.save(update_fields=['is_vip'])
+
+    def is_user_vip(self):
+        if self.vip_end_date is None:
             return False
-        return True
+        self.update_vip_status()
+        return self.is_vip
 
     def set_vip(self, days):
         self.vip_end_date = timezone.now() + timezone.timedelta(days=days)
