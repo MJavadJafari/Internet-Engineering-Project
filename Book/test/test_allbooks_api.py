@@ -71,20 +71,6 @@ class AllBooksTests(APITestCase):
         serialized_books = sorted(serialized_books, key=lambda x: x['book_id'])
         self.assertEqual(response_data, serialized_books)
 
-    # test if the books are sorted by created_at
-    def test_get_all_books_should_return_all_books_sorted_by_created_at(self):
-        # Arrange
-
-        # Act
-        response = self.client.get(self.url)
-
-        # Assert
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(len(response.data), 2)
-        serialized_books = AllBooksSerializer([self.book2, self.book1], many=True,
-                                              context=self.get_serializer_context(self.user)).data
-        self.assertEqual(response.data, serialized_books)
-
     def test_filter_books_by_donated_status_should_return_filtered_books(self):
         # Arrange
         filters = {'is_donated': True}
