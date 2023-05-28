@@ -7,50 +7,54 @@ from rest_framework.test import APIRequestFactory
 
 class MyRequestsTests(APITestCase):
 
-    @classmethod
-    def setUpTestData(cls):
-        cls.user = get_user_model().objects.create_user(
+    def setUp(self):
+        self.user = get_user_model().objects.create_user(
             email='test@example.com',
             password='testpassword',
             name='John Doe',
             phone_number='123456789'
         )
 
-        cls.second_user = get_user_model().objects.create_user(
+        self.second_user = get_user_model().objects.create_user(
             email='second_user@example.com',
             password='testpassword',
             name='Second User',
             phone_number='123456789',
         )
 
-        cls.book1 = Book.objects.create(
+        self.book1 = Book.objects.create(
             name='Book 1',
             description='Description 1',
             author='Author 1',
             is_donated=False,
-            donator_id=cls.user.pk,
+            donator_id=self.user.pk,
         )
 
-        cls.book2 = Book.objects.create(
+        self.book2 = Book.objects.create(
             name='Book 2',
             description='Description 2',
             author='Author 2',
             is_donated=False,
-            donator_id=cls.second_user.pk,
+            donator_id=self.second_user.pk,
         )
 
-        cls.book3 = Book.objects.create(
+        self.book3 = Book.objects.create(
             name='Book 3',
             description='Description 3',
             author='Author 3',
             is_donated=True,
-            donator_id=cls.second_user.pk,
+            donator_id=self.second_user.pk,
         )
 
-        cls.url = '/book/request/myrequests/'
-
-    def setUp(self):
+        self.url = '/book/request/myrequests/'
         self.client.force_authenticate(user=self.user)
+
+    def tearDown(self):
+        Book.objects.all().delete()
+        BookRequest.objects.all().delete()
+        get_user_model().objects.all().delete()
+
+        return super().tearDown()
 
     def test_get_my_requests_should_return_all_my_requests(self):
         # Arrange

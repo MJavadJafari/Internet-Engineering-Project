@@ -6,18 +6,23 @@ import random
 import string
 
 class ConfirmPasswordResetTests(APITestCase):
-    @classmethod
-    def setUpTestData(cls):
-        # create user
-        cls.user = get_user_model().objects.create_user(
+
+    def setUp(self):
+        self.user = get_user_model().objects.create_user(
             email='test@example.com',
             password='testpassword',
             name='abc',
             phone_number='123456789'
         )
-        cls.token = ''.join(random.choice(string.ascii_uppercase + string.digits) for _ in range(30))
-        cls.email_token = EmailToken.objects.create(user=cls.user, token=cls.token)
-        cls.url = '/auth/confirm_password_reset/'
+        self.token = ''.join(random.choice(string.ascii_uppercase + string.digits) for _ in range(30))
+        self.email_token = EmailToken.objects.create(user=self.user, token=self.token)
+        self.url = '/auth/confirm_password_reset/'
+
+    def tearDown(self) -> None:
+        get_user_model().objects.all().delete()
+        EmailToken.objects.all().delete()
+
+        return super().tearDown()
 
     def test_confirm_password_reset_should_render_form(self):
         # Arrange

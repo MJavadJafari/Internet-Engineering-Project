@@ -22,7 +22,6 @@ class TestConfirmDonate(APITestCase):
             phone_number='123456789',
         )
 
-        # Create test books
         self.book1 = Book.objects.create(
             name='Book 1',
             description='Description 1',
@@ -46,6 +45,13 @@ class TestConfirmDonate(APITestCase):
         )
 
         self.url = '/book/confirmdonate/'
+
+    def tearDown(self) -> None:
+        Book.objects.all().delete()
+        BookRequest.objects.all().delete()
+        get_user_model().objects.all().delete()
+
+        return super().tearDown()
 
     def test_confirm_donate_should_return_400_if_book_is_donated(self):
         # Arrange

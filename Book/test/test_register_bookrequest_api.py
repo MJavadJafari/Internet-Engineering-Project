@@ -1,34 +1,27 @@
 from rest_framework import status
 from rest_framework.test import APITestCase
-
 from django.contrib.auth import get_user_model
-
 from Book.models import BookRequest, Book
 from Book.serializers import BookRequestSerializer
 
-
 class AddRequestTests(APITestCase):
-    @classmethod
-    def setUpClass(cls):
-        super().setUpClass()
-
-        cls.user = get_user_model().objects.create_user(
+    
+    def setUp(self):
+        self.user = get_user_model().objects.create_user(
             email='test@example.com',
             password='testpassword',
             name='John Doe',
             phone_number='123456789'
         )
 
-        # Create test books
-        cls.book1 = Book.objects.create(
+        self.book1 = Book.objects.create(
             name='Book 1',
             description='Description 1',
             author='Author 1',
             is_donated=False,
-            donator_id=cls.user.pk,
+            donator_id=self.user.pk,
         )
 
-    def setUp(self):
         self.user.refresh_from_db()
         self.book1.refresh_from_db()
         self.client.force_authenticate(user=self.user)

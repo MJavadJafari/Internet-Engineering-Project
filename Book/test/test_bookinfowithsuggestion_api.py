@@ -7,7 +7,6 @@ from Book.serializers import AllBooksSerializer
 class BookInfoWithSuggestionTests(APITestCase):
 
     def setUp(self):
-        # Create test user
         self.user = get_user_model().objects.create_user(
             email='test@example.com',
             password='testpassword',
@@ -15,7 +14,6 @@ class BookInfoWithSuggestionTests(APITestCase):
             phone_number='123456789'
         )
 
-        # Create test book
         self.book1 = Book.objects.create(
             name='Book 1',
             description='Description 1',
@@ -55,6 +53,12 @@ class BookInfoWithSuggestionTests(APITestCase):
         self.client.force_authenticate(user=self.user)
 
         self.url = '/book/info-suggestion/'
+
+    def tearDown(self):
+        Book.objects.all().delete()
+        get_user_model().objects.all().delete()
+        
+        return super().tearDown()
 
     def make_request(self, book_id):
         return self.client.get(self.url + str(book_id) + '/')

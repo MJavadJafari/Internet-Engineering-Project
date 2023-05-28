@@ -5,78 +5,70 @@ from Book.models import Book, BookRequest
 from Book.serializers import AllBooksSerializer
 from rest_framework.test import APIRequestFactory
 
-
-
 class AllBooksTests(APITestCase):
 
-    @classmethod
-    def setUpTestData(cls):
-        # Create a user
-        cls.user = get_user_model().objects.create_user(
+    def setUp(self):
+        self.user = get_user_model().objects.create_user(
             email='test@example.com',
             password='testpassword',
             name='John Doe',
             phone_number='123456789'
         )
 
-        # Create test books
-        cls.book1 = Book.objects.create(
+        self.book1 = Book.objects.create(
             name='Book 1',
             description='Description 1',
             author='Author 1',
             is_donated=True,
-            donator_id=cls.user.pk,
+            donator_id=self.user.pk,
         )
 
         # Create test books
-        cls.book2 = Book.objects.create(
+        self.book2 = Book.objects.create(
             name='Book 2',
             description='Description 2',
             author='Author 2',
             is_donated=True,
-            donator_id=cls.user.pk,
+            donator_id=self.user.pk,
         )
 
-        # Create test books
-        cls.book3 = Book.objects.create(
+        self.book3 = Book.objects.create(
             name='Book 3',
             description='Description 3',
             author='Author 3',
             is_donated=True,
-            donator_id=cls.user.pk,
+            donator_id=self.user.pk,
         )
 
-        cls.book4 = Book.objects.create(
+        self.book4 = Book.objects.create(
             name='Book 4',
             description='Description 4',
             author='Author 4',
             is_donated=False,
-            donator_id=cls.user.pk,
+            donator_id=self.user.pk,
         )
 
         # Create book-request
-        cls.book_request_approved_and_not_reported = BookRequest.objects.create(user=cls.user, book=cls.book1, status=BookRequest.APPROVED, is_reported=False)
+        self.book_request_approved_and_not_reported = BookRequest.objects.create(user=self.user, book=self.book1, status=BookRequest.APPROVED, is_reported=False)
+        self.book_request_approved_and_reported = BookRequest.objects.create(user=self.user, book=self.book2, status=BookRequest.APPROVED, is_reported=True)
+        self.book_request_pending = BookRequest.objects.create(user=self.user, book=self.book3, status=BookRequest.PENDING, is_reported=False)
+        self.book_request_not_donated_book = BookRequest.objects.create(user=self.user, book=self.book4, status=BookRequest.APPROVED, is_reported=False)
+        self.url = '/book/request/report/'
 
-        cls.book_request_approved_and_reported = BookRequest.objects.create(user=cls.user, book=cls.book2, status=BookRequest.APPROVED, is_reported=True)
-
-        cls.book_request_pending = BookRequest.objects.create(user=cls.user, book=cls.book3, status=BookRequest.PENDING, is_reported=False)
-
-        cls.book_request_not_donated_book = BookRequest.objects.create(user=cls.user, book=cls.book4, status=BookRequest.APPROVED, is_reported=False)
-
-        cls.url = '/book/request/report/'
-
-
-    def setUp(self):
-        # refresh all objects
         self.book1.refresh_from_db()
         self.book2.refresh_from_db()
         self.book3.refresh_from_db()
         self.book_request_approved_and_not_reported.refresh_from_db()
         self.book_request_approved_and_reported.refresh_from_db()
         self.book_request_pending.refresh_from_db()
-
         self.client.force_authenticate(user=self.user)
 
+    def tearDown(self) -> None:
+        Book.objects.all().delete()
+        BookRequest.objects.all().delete()
+        get_user_model().objects.all().delete()
+
+        return super().tearDown()
 
     def test_valid_report_request_should_mark_request_as_reported(self):
         # Arrange
@@ -165,8 +157,3 @@ class AllBooksTests(APITestCase):
 
         # Assert
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
-
-
-
-
-

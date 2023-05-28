@@ -3,8 +3,8 @@ from rest_framework.test import APITestCase
 from django.contrib.auth import get_user_model
 from Payment.models import Transaction
 
-
 class VIPOptionsTests(APITestCase):
+
     def setUp(self):
         self.user = get_user_model().objects.create_user(
             email='test@example.com',
@@ -14,6 +14,12 @@ class VIPOptionsTests(APITestCase):
         )
 
         self.url = '/payment/options/'
+
+    def tearDown(self) -> None:
+        get_user_model().objects.all().delete()
+        Transaction.objects.all().delete()
+        
+        return super().tearDown()
 
     def test_get_vip_options_should_return_401_when_user_is_not_authenticated(self):
         # Act

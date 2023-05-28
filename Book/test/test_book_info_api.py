@@ -9,18 +9,15 @@ from Book.serializers import BookSerializer
 class BookInfoTestCase(APITestCase):
     user = None
 
-    @classmethod
-    def setUpClass(cls):
-        super().setUpClass()
-        
-        cls.user = get_user_model().objects.create_user(
+    def setUp(self):        
+        self.user = get_user_model().objects.create_user(
             email='test@example.com',
             password='testpassword',
             name='John Doe',
             phone_number='123456789'
         )
 
-        cls.book = Book.objects.create(
+        self.book = Book.objects.create(
             name='Book Name',
             description='Book Description',
             translator='Book Translator',
@@ -28,13 +25,18 @@ class BookInfoTestCase(APITestCase):
             publish_year='Book Publish Year',
             is_donated=False,
             is_received=False,
-            donator=cls.user,
+            donator=self.user,
             author='Book Author',
             number_of_request=0,
         )
 
-    def setUp(self):
         self.client.force_authenticate(user=self.user)
+
+    def tearDown(self):
+        Book.objects.all().delete()
+        get_user_model().objects.all().delete()
+
+        return super().tearDown()
 
     def get_book_info(self, book_id):
         return self.client.get(f'/book/{book_id}/')

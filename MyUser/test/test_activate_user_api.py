@@ -6,18 +6,24 @@ import random
 import string
 
 class ActivateUserTests(APITestCase):
-    @classmethod
-    def setUpTestData(cls):
-        # create user
-        cls.user = get_user_model().objects.create_user(
+
+    def setUp(self):
+        self.user = get_user_model().objects.create_user(
             email='test@example.com',
             password='testpassword',
             name='abc',
             phone_number='123456789'
         )
-        cls.token = ''.join(random.choice(string.ascii_uppercase + string.digits) for _ in range(30))
-        cls.email_token = EmailToken.objects.create(user=cls.user, token=cls.token)
-        cls.url = '/auth/activate/'
+        self.token = ''.join(random.choice(string.ascii_uppercase + string.digits) for _ in range(30))
+        self.email_token = EmailToken.objects.create(user=self.user, token=self.token)
+        
+        self.url = '/auth/activate/'
+
+    def tearDown(self) -> None:
+        get_user_model().objects.all().delete()
+        EmailToken.objects.all().delete()
+
+        return super().tearDown()
 
     def test_activate_user_should_return_success_form(self):
         # Arrang

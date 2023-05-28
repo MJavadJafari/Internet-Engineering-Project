@@ -6,10 +6,10 @@ from Book.models import Book, BookRequest
 
 
 class DeleteRequestTestCase(APITestCase):
-    @classmethod
-    def setUp(cls):
+
+    def setUp(self):
         # Create a user
-        cls.user = get_user_model().objects.create_user(
+        self.user = get_user_model().objects.create_user(
             email='test@example.com',
             password='testpassword',
             name='John Doe',
@@ -17,33 +17,40 @@ class DeleteRequestTestCase(APITestCase):
         )
 
         # Create test books
-        cls.book1 = Book.objects.create(
+        self.book1 = Book.objects.create(
             name='Book 1',
             description='Description 1',
             author='Author 1',
             is_donated=False,
-            donator_id=cls.user.pk,
+            donator_id=self.user.pk,
         )
 
         # Create test books
-        cls.book2 = Book.objects.create(
+        self.book2 = Book.objects.create(
             name='Book 2',
             description='Description 2',
             author='Author 2',
             is_donated=True,
-            donator_id=cls.user.pk,
+            donator_id=self.user.pk,
         )
 
         # Create test books
-        cls.book3 = Book.objects.create(
+        self.book3 = Book.objects.create(
             name='Book 3',
             description='Description 3',
             author='Author 3',
             is_donated=True,
-            donator_id=cls.user.pk,
+            donator_id=self.user.pk,
             created_at='2021-01-01'
         )
-        cls.url = '/book/request/delete/'
+        self.url = '/book/request/delete/'
+
+    def tearDown(self):
+        Book.objects.all().delete()
+        BookRequest.objects.all().delete()
+        get_user_model().objects.all().delete()
+
+        return super().tearDown()
 
     def test_delete_pending_request_from_not_donated_book_should_delete_request_and_increase_rooyesh(self):
         # Arrange
@@ -62,8 +69,6 @@ class DeleteRequestTestCase(APITestCase):
         self.assertEqual(self.user.rooyesh, 1)
 
 
-#     test for deleting a pending request from a donated book
-
     def test_delete_pending_request_from_donated_book_should_not_delete_request_and_not_increase_rooyesh(self):
         # Arrange
         data = {'book': self.book2.book_id}
@@ -80,7 +85,6 @@ class DeleteRequestTestCase(APITestCase):
         self.assertEqual(BookRequest.objects.count(), 1)
         self.assertEqual(self.user.rooyesh, 0)
 
-    #    test for deleting a accepted request from a donated book
 
     def test_delete_approved_request_from_donated_book_should_not_delete_request_and_not_increase_rooyesh(self):
         # Arrange
@@ -99,8 +103,6 @@ class DeleteRequestTestCase(APITestCase):
         self.assertEqual(self.user.rooyesh, 0)
 
 
-    #    test for deleting a rejected request from a donated book
-
     def test_delete_rejected_request_from_donated_book_should_not_delete_request_and_not_increase_rooyesh(self):
         # Arrange
         data = {'book': self.book3.book_id}
@@ -117,7 +119,7 @@ class DeleteRequestTestCase(APITestCase):
         self.assertEqual(BookRequest.objects.count(), 1)
         self.assertEqual(self.user.rooyesh, 0)
 
-    # test fot invalid book id
+
     def test_delete_request_with_invalid_book_id_should_not_delete_request_and_not_increase_rooyesh(self):
         # Arrange
         data = {'book': 100}

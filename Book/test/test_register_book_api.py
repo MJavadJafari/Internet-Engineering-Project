@@ -1,23 +1,25 @@
 from django.contrib.auth import get_user_model
 from rest_framework import status
 from rest_framework.test import APITestCase
-
 from Book.models import Book
 
-
 class RegisterBooksTestCase(APITestCase):
-    @classmethod
-    def setUpClass(cls):
-        super().setUpClass()
-        cls.user = get_user_model().objects.create_user(
+
+    def setUp(self):
+        self.user = get_user_model().objects.create_user(
             email='test@example.com',
             password='testpassword',
             name='John Doe',
             phone_number='123456789'
         )
 
-    def setUp(self):
         self.client.force_authenticate(user=self.user)
+
+    def tearDown(self) -> None:
+        Book.objects.all().delete()
+        get_user_model().objects.all().delete()
+        
+        return super().tearDown()
 
     def register_book(self, data):
         return self.client.post('/book/register/', data, format='json')

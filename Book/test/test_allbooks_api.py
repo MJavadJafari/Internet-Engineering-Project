@@ -1,5 +1,4 @@
 from datetime import datetime
-
 from rest_framework import status
 from rest_framework.test import APITestCase
 from django.contrib.auth import get_user_model
@@ -10,45 +9,47 @@ from rest_framework.test import APIRequestFactory
 
 class AllBooksTests(APITestCase):
 
-    @classmethod
-    def setUpTestData(cls):
-        # Create test user
-        cls.user = get_user_model().objects.create_user(
+    def setUp(self):
+        self.user = get_user_model().objects.create_user(
             email='test@example.com',
             password='testpassword',
             name='John Doe',
             phone_number='123456789'
         )
 
-        cls.second_user = get_user_model().objects.create_user(
+        self.second_user = get_user_model().objects.create_user(
             email='second_user@example.com',
             password='testpassword',
             name='Second User',
             phone_number='123456789',
         )
 
-        # Create test books
-        cls.book1 = Book.objects.create(
+        self.book1 = Book.objects.create(
             name='Book 1',
             description='Description 1',
             author='Author 1',
             is_donated=True,
-            donator_id=cls.user.pk,
+            donator_id=self.user.pk,
             created_at=datetime(2021, 1, 1, 0, 0, 0, 0)
         )
-        cls.book2 = Book.objects.create(
+        self.book2 = Book.objects.create(
             name='Book 2',
             description='Description 2',
             author='Author 2',
             is_donated=False,
-            donator_id=cls.second_user.pk,
+            donator_id=self.second_user.pk,
             created_at=datetime(2021, 1, 2, 0, 0, 0, 0)
         )
 
-        cls.url = '/book/all/'
-
-    def setUp(self):
+        self.url = '/book/all/'
         self.client.force_authenticate(user=self.user)
+
+    def tearDown(self) -> None:
+        Book.objects.all().delete()
+        BookRequest.objects.all().delete()
+        get_user_model().objects.all().delete()
+
+        return super().tearDown()
 
     def get_serializer_context(self, user):
         request = APIRequestFactory().get(self.url)

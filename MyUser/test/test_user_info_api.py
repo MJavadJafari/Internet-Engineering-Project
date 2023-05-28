@@ -5,20 +5,22 @@ from Book.models import Book, BookRequest
 from Book.serializers import AllBooksSerializer
 from rest_framework.test import APIRequestFactory
 
-
 class UserInfoTests(APITestCase):
     
-    @classmethod
-    def setUpTestData(cls):
-        # create user
-        cls.user = get_user_model().objects.create_user(
+    def setUp(self):
+        self.user = get_user_model().objects.create_user(
             email='test@example.com',
             password='testpassword',
             name='abc',
             phone_number='123456789'
         )
 
-        cls.url = '/auth/info/'
+        self.url = '/auth/info/'
+
+    def tearDown(self) -> None:
+        get_user_model().objects.all().delete()
+
+        return super().tearDown()
 
     def test_get_user_info(self):
         # Arrange

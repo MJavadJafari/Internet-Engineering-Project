@@ -1,5 +1,4 @@
 import datetime
-
 from django.contrib.auth import get_user_model
 from django.utils.timezone import get_current_timezone
 from rest_framework import status
@@ -9,24 +8,23 @@ from Book.models import Book, BookRequest
 
 
 class ReceiveBookTestCase(APITestCase):
-    @classmethod
-    def setUp(cls):
-        # Create a user
-        cls.donator_user = get_user_model().objects.create_user(
+
+    def setUp(self):
+        self.donator_user = get_user_model().objects.create_user(
             email='test@example.com',
             password='testpassword',
             name='John Doe',
             phone_number='123456789'
         )
 
-        cls.receiver_user = get_user_model().objects.create_user(
+        self.receiver_user = get_user_model().objects.create_user(
             email='receiver@example.com',
             password='testpassword',
             name='John Doe',
             phone_number='123456789'
         )
 
-        cls.vip_donator = get_user_model().objects.create_user(
+        self.vip_donator = get_user_model().objects.create_user(
             email='vip@example.com',
             password='testpassword',
             name='John Doe',
@@ -36,46 +34,49 @@ class ReceiveBookTestCase(APITestCase):
         )
 
         # Create test books
-        cls.book1 = Book.objects.create(
+        self.book1 = Book.objects.create(
             name='Book 1',
             description='Description 1',
             author='Author 1',
             is_donated=True,
             is_received=False,
-            donator_id=cls.donator_user.pk,
+            donator_id=self.donator_user.pk,
         )
 
         # Create test books
-        cls.book2 = Book.objects.create(
+        self.book2 = Book.objects.create(
             name='Book 2',
             description='Description 2',
             author='Author 2',
             is_donated=True,
-            donator_id=cls.vip_donator.pk,
+            donator_id=self.vip_donator.pk,
         )
 
         # Create test books
-        cls.book3 = Book.objects.create(
+        self.book3 = Book.objects.create(
             name='Book 3',
             description='Description 3',
             author='Author 3',
             is_donated=False,
-            donator_id=cls.donator_user.pk,
+            donator_id=self.donator_user.pk,
         )
 
-        cls.book4 = Book.objects.create(
+        self.book4 = Book.objects.create(
             name='Book 4',
             description='Description 4',
             author='Author 4',
             is_donated=True,
             is_received=True,
-            donator_id=cls.donator_user.pk,
+            donator_id=self.donator_user.pk,
         )
 
-        # Create book-request
+        self.url = '/book/request/receivebook/'
 
-        cls.url = '/book/request/receivebook/'
+    def tearDown(self) -> None:
+        Book.objects.all().delete()
+        BookRequest.objects.all().delete()
 
+        return super().tearDown()
 
     def test_receive_book_should_mark_book_as_received_and_update_donator_rooyesh_and_credit(self):
         # Arrange
@@ -152,7 +153,6 @@ class ReceiveBookTestCase(APITestCase):
         # Assert
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
-
     def test_book_request_not_approved_should_return_400(self):
         # Arrange
         data = {'book': self.book1.book_id}
@@ -164,5 +164,3 @@ class ReceiveBookTestCase(APITestCase):
 
         # Assert
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-
-

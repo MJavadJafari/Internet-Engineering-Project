@@ -8,42 +8,37 @@ from rest_framework.test import APIRequestFactory
 
 class DeleteBookTests(APITestCase):
 
-    @classmethod
-    def setUpTestData(cls):
-        # Create test user
-        cls.user = get_user_model().objects.create_user(
+    def setUp(self):
+        self.user = get_user_model().objects.create_user(
             email='test@example.com',
             password='testpassword',
             name='John Doe',
             phone_number='123456789'
         )
 
-        cls.second_user = get_user_model().objects.create_user(
+        self.second_user = get_user_model().objects.create_user(
             email='second_user@example.com',
             password='testpassword',
             name='Second User',
             phone_number='123456789',
         )
 
-        # Create test books
-        cls.book1 = Book.objects.create(
+        self.book1 = Book.objects.create(
             name='Book 1',
             description='Description 1',
             author='Author 1',
             is_donated=False,
-            donator_id=cls.user.pk,
+            donator_id=self.user.pk,
         )
-        cls.book2 = Book.objects.create(
+        self.book2 = Book.objects.create(
             name='Book 2',
             description='Description 2',
             author='Author 2',
             is_donated=False,
-            donator_id=cls.second_user.pk,
+            donator_id=self.second_user.pk,
         )
 
-        cls.url = '/book/delete/'
-
-    def setUp(self):
+        self.url = '/book/delete/'
         self.client.force_authenticate(user=self.user)
 
     def test_delete_book_should_delete_book(self):

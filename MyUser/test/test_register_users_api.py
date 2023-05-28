@@ -8,17 +8,20 @@ from rest_framework.test import APIRequestFactory
 
 class RegisterUsersTests(APITestCase):
     
-    @classmethod
-    def setUpTestData(cls):
-        # Create test user
-        cls.user = get_user_model().objects.create_user(
+    def setUp(self):
+        self.user = get_user_model().objects.create_user(
             email='existing@user.com',
             password='testpassword',
             name='abc',
             phone_number='123456789'
         )
 
-        cls.url = '/auth/register/'
+        self.url = '/auth/register/'
+
+    def tearDown(self) -> None:
+        get_user_model().objects.all().delete()
+
+        return super().tearDown()
 
     def test_register_user_should_return_success(self):
         # Arrange

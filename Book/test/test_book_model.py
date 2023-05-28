@@ -5,9 +5,8 @@ from Book.models import Book
 
 
 class BookModelTestCase(TestCase):
-    @classmethod
-    def setUpClass(cls):
-        super().setUpClass()
+    
+    def setUp(self):
 
         user = get_user_model().objects.create_user(
             email='test@example.com',
@@ -16,7 +15,7 @@ class BookModelTestCase(TestCase):
             phone_number='123456789'
         )
 
-        cls.book_data = {
+        self.book_data = {
             'name': 'Book Name',
             'description': 'Book Description',
             'translator': 'Book Translator',

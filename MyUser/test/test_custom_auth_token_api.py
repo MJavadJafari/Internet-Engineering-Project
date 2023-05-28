@@ -4,19 +4,22 @@ from django.contrib.auth import get_user_model
 
 class CustomAuthTokenTests(APITestCase):
 
-    @classmethod
-    def setUpTestData(cls):
+    def setUp(self):
         # Create test user
-        cls.user = get_user_model().objects.create_user(
+        self.user = get_user_model().objects.create_user(
             email='test@example.com',
             password='testpassword',
             name='John Doe',
             phone_number='123456789'
         )
 
-        cls.url = '/auth/login/'
+        self.url = '/auth/login/'
 
-    # Test that a valid token is returned when a user provides valid credentials
+    def tearDown(self) -> None:
+        get_user_model().objects.all().delete()
+
+        return super().tearDown()
+
     def test_login_should_return_token(self):
         # Arrange
         data = {
@@ -104,7 +107,6 @@ class CustomAuthTokenTests(APITestCase):
         self.assertEqual(response.data['username'][0], 'This field is required.')
         self.assertEqual(response.data['password'][0], 'This field is required.')
 
-    #  test if vip_end_date is passed, make user not vip.check for None because it can be null
     def test_login_should_return_200_when_user_is_vip_and_vip_end_date_is_passed(self):
         # Arrange
         data = {
