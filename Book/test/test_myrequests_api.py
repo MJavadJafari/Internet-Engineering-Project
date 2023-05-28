@@ -1,15 +1,3 @@
-# # tests for myrequests api
-# class My_requests(ListAPIView):
-#     permission_classes = [
-#         permissions.IsAuthenticated
-#     ]
-#     serializer_class = MyRequestsSerializer
-#     filter_backends = (DjangoFilterBackend,)
-#     filterset_fields = ['status']
-#
-#     def get_queryset(self):
-#         return BookRequest.objects.filter(user=self.request.user)
-
 from rest_framework import status
 from rest_framework.test import APITestCase
 from django.contrib.auth import get_user_model
@@ -21,7 +9,6 @@ class MyRequestsTests(APITestCase):
 
     @classmethod
     def setUpTestData(cls):
-        # Create test user
         cls.user = get_user_model().objects.create_user(
             email='test@example.com',
             password='testpassword',
@@ -36,7 +23,6 @@ class MyRequestsTests(APITestCase):
             phone_number='123456789',
         )
 
-        # Create test books
         cls.book1 = Book.objects.create(
             name='Book 1',
             description='Description 1',
