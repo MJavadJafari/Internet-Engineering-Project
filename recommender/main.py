@@ -36,11 +36,13 @@ class SingletonRecommender:
             summary = book_data[item]
             item = int(item)
             keywords = np.unique(embedRank.embedRank(summary, max(4, len(summary.split()) / 8), self.embedding_model, self.posTagger))
+            # tmp_dic[item] = [self.embedding_model[keyword] for keyword in keywords]
             tmp_dic[item] = self.pca.transform([self.embedding_model[keyword] for keyword in keywords]).tolist()
         self.book_data = tmp_dic
 
     def insert_book(self, id: int, summary: str):
         keywords = np.unique(embedRank.embedRank(summary, max(4, len(summary.split()) / 8), self.embedding_model, self.posTagger))
+        # self.book_data[id] = [self.embedding_model[keyword] for keyword in keywords]
         self.book_data[id] = self.pca.transform([self.embedding_model[keyword] for keyword in keywords]).tolist()
         # return keywords in list
         return keywords.tolist()

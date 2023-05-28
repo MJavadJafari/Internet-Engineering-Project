@@ -8,7 +8,7 @@ small_sample_text1 = 'آمازون شامل ببرهای وحشی زیادی ا�
 sample_summary_list = [big_sample_text, small_sample_text, small_sample_text1]
 
 class Recommender_user(HttpUser):
-    wait_time = between(1,5)
+    wait_time = between(9,10)
 
     @task
     def insert_book(self):
@@ -21,7 +21,7 @@ class Recommender_user(HttpUser):
     @task
     def ask_book(self):
         data = {
-            "id": np.random.randint(5, 8)
+            "id": 5
         }
         self.client.post('/ask_book', data=data)
 
