@@ -1,27 +1,3 @@
-# # test for book info with suggestion
-# class BookInfoWithSuggestion(APIView):
-#     permission_classes = [
-#         permissions.IsAuthenticated
-#     ]
-#
-#     def get(self, request, pk):
-#         try:
-#             book = Book.objects.get(book_id=pk)
-#         except:
-#             return Response({"Invalid request"}, status=HTTP_400_BAD_REQUEST)
-#
-#         req = {
-#             'id': book.book_id,
-#         }
-#
-#         similar_books = Book.objects.all().exclude(book_id=book.book_id).order_by('?')[:5]
-#
-#         response = {
-#             "book": AllBooksSerializer(book, context={'request': request}).data,
-#             "similar_books": AllBooksSerializer(similar_books, many=True, context={'request': request}).data,
-#         }
-#         return Response(response, status=HTTP_200_OK)
-
 from rest_framework import status
 from rest_framework.test import APITestCase
 from django.contrib.auth import get_user_model
