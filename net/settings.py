@@ -190,5 +190,20 @@ REST_FRAMEWORK = {
     ],
 }
 
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': True,
+    'handlers': {
+        'file': {
+            'class': 'logging.FileHandler',
+            'filename': 'log.txt',
+        },
+    },
+    'root': {
+        'handlers': ['file'],
+        'level': 'INFO',
+    }
+}
+
 CORS_ORIGIN_ALLOW_ALL = True
 

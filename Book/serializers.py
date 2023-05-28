@@ -1,5 +1,9 @@
 from rest_framework import serializers
 from Book.models import Book, BookRequest
+from django.utils import timezone
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 class BookSerializer(serializers.ModelSerializer):
@@ -11,6 +15,7 @@ class BookSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         book = Book.objects.create(**validated_data, donator=self.context['request'].user)
+        logger.info("[%s] [%s] [%s]", timezone.now(), logging.getLevelName(logging.INFO), f"BookSerializer.create: book = {book} donator = {self.context['request'].user}")
         return book
 
 
@@ -38,17 +43,21 @@ class BookRequestSerializer(serializers.ModelSerializer):
         user = self.context['request'].user
         book = validated_data['book']
         if book.is_donated:
+            logger.info("[%s] [%s] [%s]", timezone.now(), logging.getLevelName(logging.INFO), f"BookRequestSerializer.create: book = {book} is donated")
             raise serializers.ValidationError({'detail': 'Book is already donated'})
 
         prev_req = BookRequest.objects.filter(**validated_data, user=self.context['request'].user)
         if prev_req.exists():
+            logger.info("[%s] [%s] [%s]", timezone.now(), logging.getLevelName(logging.INFO), f"BookRequestSerializer.create: book = {book} user = {user} exists already")
             return prev_req[0]
 
         if user.rooyesh == 0:
+            logger.info("[%s] [%s] [%s]", timezone.now(), logging.getLevelName(logging.INFO), f"BookRequestSerializer.create: book = {book} user = {user} not enough rooyesh")
             raise serializers.ValidationError({'detail': 'Not enough rooyesh'})
 
         request = BookRequest.objects.create(**validated_data, user=self.context['request'].user)
         user.change_rooyesh(-1)
+        logger.info("[%s] [%s] [%s]", timezone.now(), logging.getLevelName(logging.INFO), f"BookRequestSerializer.create: user = {user} new rooyesh after request = {user.rooyesh}")
 
         return request
 
