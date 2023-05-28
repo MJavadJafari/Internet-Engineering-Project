@@ -7,7 +7,7 @@ from main import *
 
 
 #prepared data
-embedding_path = r'~/models/hazm/light_sent2vec.model'
+embedding_path = r'/Users/e_ghafour/models/hazm/300light_sent2vec.model'
 tagger_path = r'/Users/e_ghafour/models/hazm/pos_tagger.model'
 big_sample_text = 'سفارت ایران در مادرید درباره فیلم منتشرشده از «حسن قشقاوی» در مراسم سال نو در کاخ سلطنتی اسپانیا و حاشیه‌سازی‌ها در فضای مجازی اعلام کرد: به تشریفات دربار کتباً اعلام شد سفیر بدون همراه در مراسم حضور خواهد داشت و همچون قبل به دلایل تشریفاتی نمی‌تواند با ملکه دست بدهد. همان‌گونه که کارشناس رسمی تشریفات در توضیحات خود به یک نشریه اسپانیایی گفت این موضوع توضیح مذهبی داشته و هرگز به معنی بی‌احترامی به مقام و شخصیت زن آن هم در سطح ملکه محترمه یک کشور نیست.'
 small_sample_text = 'در جنگل ایران گونه‌های جانوری زیادی وجود دارد.'
@@ -47,7 +47,7 @@ def test_delete_book_when_input_id_is_correct_should_not_exist_in_all_book():
 def test_text2vec_when_model_is_none_should_return_2_outputs():
     candidate_vector, text_vector = embedRank.text2vec(['دریا', 'ایران'], sent2vec_model_path=embedding_path)
     assert len(candidate_vector[0]) == 2, f'the len of input is 2, so the output should return a list with 2 elements'
-    assert len(text_vector) == 200, f'the output of the embedding is in 300 dimention but it has {len(text_vector)} dimentions'
+    assert len(text_vector) == 300, f'the output of the embedding is in 300 dimention but it has {len(text_vector)} dimentions'
 
 def test_posTagger_of_embedRank_when_model_is_none_should_return_list_of_tuplels():
     tagged_sent = embedRank.posTagger(text=small_sample_text, pos_model_path=tagger_path)

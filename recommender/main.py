@@ -2,6 +2,7 @@ import numpy as np
 from hazm import SentEmbedding
 from sklearn.metrics.pairwise import cosine_similarity
 import embedRank
+import joblib
 from flask import Flask, request, make_response, jsonify
 from hazm import POSTagger
 
@@ -15,8 +16,9 @@ app = Flask(__name__)
 # sent2vec_path = r'C:\Users\delta\PycharmProjects\net\recommender\sent2vec-naab.model'
 # posTagger_path = r'C:\Users\delta\PycharmProjects\net\recommender\posTagger.model'
 
-sent2vec_path = r'~/models/hazm/light_sent2vec.model'
+sent2vec_path = r'/Users/e_ghafour/models/hazm/sent2vec/sent2vec-naab.model'
 posTagger_path = r'/Users/e_ghafour/models/hazm/pos_tagger.model'
+pca_path = r'/Users/e_ghafour/repos/kahroba/Internet-Engineering-Project/recommender/pca_sent2vec-naab.model'
 
 class SingletonRecommender:
 
@@ -28,17 +30,18 @@ class SingletonRecommender:
     def init_model(self, book_data, sent2vec_path=sent2vec_path, posTagger_path=posTagger_path):
         self.embedding_model = SentEmbedding(model_path= sent2vec_path)
         self.posTagger = POSTagger(model = posTagger_path)
+        self.pca = joblib.load(pca_path)
         tmp_dic = {}
         for item in book_data:
             summary = book_data[item]
             item = int(item)
             keywords = np.unique(embedRank.embedRank(summary, max(4, len(summary.split()) / 8), self.embedding_model, self.posTagger))
-            tmp_dic[item] = [self.embedding_model[keyword] for keyword in keywords]
+            tmp_dic[item] = self.pca.transform([self.embedding_model[keyword] for keyword in keywords]).tolist()
         self.book_data = tmp_dic
 
     def insert_book(self, id: int, summary: str):
         keywords = np.unique(embedRank.embedRank(summary, max(4, len(summary.split()) / 8), self.embedding_model, self.posTagger))
-        self.book_data[id] = [self.embedding_model[keyword] for keyword in keywords]
+        self.book_data[id] = self.pca.transform([self.embedding_model[keyword] for keyword in keywords]).tolist()
         # return keywords in list
         return keywords.tolist()
 
@@ -94,6 +97,7 @@ def ask_book():
     return recommender.ask_book(id)
 
 recommender = SingletonRecommender()
+
 if __name__ == '__main__':
     #for locust...
     recommender.init_model(sample_dict, sent2vec_path, posTagger_path)
