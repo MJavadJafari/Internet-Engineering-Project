@@ -13,6 +13,10 @@ from rest_framework.views import APIView
 from Book.models import Book, BookRequest
 from Book.serializers import BookSerializer, BookRequestSerializer, MyRequestsSerializer, AllBooksSerializer
 from MyUser.models import MyUser
+from django.utils import timezone
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 class RegisterBooks(CreateAPIView):
@@ -29,28 +33,38 @@ class BookInfoWithSuggestion(APIView):
     ]
 
     def get(self, request, pk):
+        logger.info("[%s] [%s] [%s]", timezone.now(), logging.getLevelName(logging.INFO), "BookInfoWithSuggestion.get")
         try:
             book = Book.objects.get(book_id=pk)
         except:
+            logger.info("[%s] [%s] [%s]", timezone.now(), logging.getLevelName(logging.INFO), "BookInfoWithSuggestion.get: book not found, response = 400")
             return Response({"Invalid request"}, status=HTTP_400_BAD_REQUEST)
-        
+
         req = {
-            'id' : book.book_id,
+            'id': book.book_id,
         }
 
-        try:
-            res = requests.post(settings.FLASK_SERVER_ADDRESS + '/ask_book', data=req)
-            if res.status_code == 200:
-                similar_books = Book.objects.filter(book_id__in=res.json())
-            else:
-                similar_books = Book.objects.all().exclude(book_id=book.book_id).order_by('?')[:5]
-        except:
-            similar_books = Book.objects.all().exclude(book_id=book.book_id).order_by('?')[:5]
+        if settings.USE_FLASK_SERVER:
+            logger.info("[%s] [%s] [%s]", timezone.now(), logging.getLevelName(logging.INFO), "BookInfoWithSuggestion.get: using flask server")
+            try:
+                res = requests.post(settings.FLASK_SERVER_ADDRESS + '/ask_book', data=req)
+                if res.status_code == 200:
+                    logger.info("[%s] [%s] [%s]", timezone.now(), logging.getLevelName(logging.INFO), "BookInfoWithSuggestion.get: flask server respended with 200, using similar books provided by flask server")
+                    similar_books = Book.objects.filter(book_id__in=res.json())
+                else:
+                    logger.info("[%s] [%s] [%s]", timezone.now(), logging.getLevelName(logging.INFO), "BookInfoWithSuggestion.get: flask server respended with 400, using random similar books")
+                    similar_books = Book.objects.filter(is_donated=False).exclude(book_id=book.book_id).order_by('?')[:5]
+            except:
+                logger.info("[%s] [%s] [%s]", timezone.now(), logging.getLevelName(logging.INFO), "BookInfoWithSuggestion.get: flask server not found, using random similar books")
+                similar_books = Book.objects.filter(is_donated=False).exclude(book_id=book.book_id).order_by('?')[:5]
+        else:
+            similar_books = Book.objects.filter(is_donated=False).exclude(book_id=book.book_id).order_by('?')[:5]
 
         response = {
             "book": AllBooksSerializer(book, context={'request': request}).data,
             "similar_books": AllBooksSerializer(similar_books, many=True, context={'request': request}).data,
         }
+        logger.info("[%s] [%s] [%s]", timezone.now(), logging.getLevelName(logging.INFO), f"BookInfoWithSuggestion.get: user {request.user} got book info with suggestion, response = 200")
         return Response(response, status=HTTP_200_OK)
 
 
@@ -66,25 +80,6 @@ class AllBooks(ListAPIView):
 
     queryset = Book.objects.all().order_by('-created_at')
 
-    def get_queryset(self):
-        # try:
-        #     from Recommender.Recommender import SingletonRecommender
-        #     for book in Book.objects.all():
-        #         book.ranking = 0
-        #         book.save()
-        #     book = BookRequest.objects.filter(user=self.request.user).order_by('-created_at')[0]
-        #     rec = SingletonRecommender()
-        #     ans = rec.ask_book(book.book_id)
-        #     for i in range(len(ans)):
-        #         x = Book.objects.get(book_id=ans[i])
-        #         x.ranking = len(ans) - i
-        #         x.save()
-        #     return Book.objects.all().order_by('-ranking', '-created_at')
-        # except Exception as e:
-        #     print(e)
-        # TODO: add ranking
-        return Book.objects.all().order_by('-created_at')
-
 
 class BookInfo(RetrieveAPIView):
     permission_classes = [
@@ -99,18 +94,6 @@ class AddRequest(CreateAPIView):
         permissions.IsAuthenticated
     ]
     serializer_class = BookRequestSerializer
-
-
-class Requests_to_me(ListAPIView):
-    permission_classes = [
-        permissions.IsAuthenticated
-    ]
-    serializer_class = BookRequestSerializer
-    filter_backends = (DjangoFilterBackend,)
-    filterset_fields = ['book', 'status']
-
-    def get_queryset(self):
-        return BookRequest.objects.filter(book__donator=self.request.user)
 
 
 class My_requests(ListAPIView):
@@ -131,15 +114,17 @@ class ConfirmDonate(APIView):
     ]
 
     def post(self, request):
-        print(request.data)
+        logger.info("[%s] [%s] [%s]", timezone.now(), logging.getLevelName(logging.INFO), "ConfirmDonate.post")
         try:
             book = Book.objects.get(is_donated=False, donator=self.request.user, book_id=request.data['book'])
         except:
+            logger.info("[%s] [%s] [%s]", timezone.now(), logging.getLevelName(logging.INFO), "ConfirmDonate.post: book not found, response = 400")
             return Response({"Invalid request"}, status=HTTP_400_BAD_REQUEST)
 
         all_requests = BookRequest.objects.filter(book=book)
         registered_users = MyUser.objects.filter(user_id__in=all_requests.values_list('user'))
         if len(registered_users) == 0:
+            logger.info("[%s] [%s] [%s]", timezone.now(), logging.getLevelName(logging.INFO), "ConfirmDonate.post: no one signed up yet, response = 400")
             return Response({"No one signed up yet"}, status=HTTP_400_BAD_REQUEST)
 
         registered_users = list(registered_users)
@@ -154,11 +139,13 @@ class ConfirmDonate(APIView):
                 req.status = BookRequest.REJECTED
 
             req.save()
+            logger.info("[%s] [%s] [%s]", timezone.now(), logging.getLevelName(logging.INFO), f"ConfirmDonate.post: request with user {req.user} and book {req.book} set to {req.status}")
 
         # set book donated
         book.is_donated = True
         book.save()
 
+        logger.info("[%s] [%s] [%s]", timezone.now(), logging.getLevelName(logging.INFO), f"ConfirmDonate.post: book {book} set to donated")
         return Response({"phone_number": chosen_user.phone_number,
                          "name": chosen_user.name,
                          "post_address": chosen_user.post_address}, status=HTTP_200_OK)
@@ -170,25 +157,31 @@ class DeleteBook(APIView):
     ]
 
     def post(self, request):
+        logger.info("[%s] [%s] [%s]", timezone.now(), logging.getLevelName(logging.INFO), "DeleteBook.post")
         try:
             book = Book.objects.get(is_donated=False, donator=self.request.user, book_id=request.data['book'])
         except:
+            logger.info("[%s] [%s] [%s]", timezone.now(), logging.getLevelName(logging.INFO), "DeleteBook.post: user {self.request.user}, book not found, response = 400")
             return Response({"Invalid request"}, status=HTTP_400_BAD_REQUEST)
 
         all_requests = BookRequest.objects.filter(book=book)
         registered_users = MyUser.objects.filter(user_id__in=all_requests.values_list('user'))
 
-        print(registered_users)
         # return rooyesh
         for user in registered_users:
             if user != self.request.user:
                 user.change_rooyesh(1)
+                user.save(update_fields=['rooyesh'])
+                logger.info("[%s] [%s] [%s]", timezone.now(), logging.getLevelName(logging.INFO), f"DeleteBook.post: user {user} rooyesh changed to {user.rooyesh}")
 
         # delete request
         for req in all_requests:
             req.delete()
+            logger.info("[%s] [%s] [%s]", timezone.now(), logging.getLevelName(logging.INFO), f"DeleteBook.post: request with user {req.user} and book {req.book} deleted")
 
         book.delete()
+        
+        logger.info("[%s] [%s] [%s]", timezone.now(), logging.getLevelName(logging.INFO), f"DeleteBook.post: user {self.request.user}, book {book} deleted")
         return Response({'Success'}, status=HTTP_200_OK)
 
 
@@ -198,14 +191,17 @@ class DeleteRequest(APIView):
     ]
 
     def post(self, request):
+        logger.info("[%s] [%s] [%s]", timezone.now(), logging.getLevelName(logging.INFO), "DeleteRequest.post")
         try:
             book = Book.objects.get(is_donated=False, book_id=request.data['book'])
             req = BookRequest.objects.get(user=self.request.user, book=book, status=BookRequest.PENDING)
         except:
+            logger.info("[%s] [%s] [%s]", timezone.now(), logging.getLevelName(logging.INFO), "DeleteRequest.post: user {self.request.user}, book not found, response = 400")
             return Response({"Invalid request"}, status=HTTP_400_BAD_REQUEST)
 
         self.request.user.change_rooyesh(1)
         req.delete()
+        logger.info("[%s] [%s] [%s]", timezone.now(), logging.getLevelName(logging.INFO), f"DeleteRequest.post: user {self.request.user}, request with user {req.user} and book {req.book} deleted")
         return Response({'Success'}, status=HTTP_200_OK)
 
 
@@ -215,15 +211,18 @@ class ReportRequest(APIView):
     ]
 
     def post(self, request):
+        logger.info("[%s] [%s] [%s]", timezone.now(), logging.getLevelName(logging.INFO), "ReportRequest.post")
         try:
             book = Book.objects.get(is_donated=True, book_id=request.data['book'])
             req = BookRequest.objects.get(user=self.request.user, book=book, status=BookRequest.APPROVED,
                                           is_reported=False)
         except:
+            logger.info("[%s] [%s] [%s]", timezone.now(), logging.getLevelName(logging.INFO), "ReportRequest.post: user {self.request.user}, book not found, response = 400")
             return Response({"Invalid request"}, status=HTTP_400_BAD_REQUEST)
 
         req.is_reported = True
         req.save()
+        logger.info("[%s] [%s] [%s]", timezone.now(), logging.getLevelName(logging.INFO), f"ReportRequest.post: user {self.request.user}, request with user {req.user} and book {req.book} reported")
         return Response({'Success'}, status=HTTP_200_OK)
 
 
@@ -233,24 +232,32 @@ class ReceiveBook(APIView):
     ]
 
     def post(self, request):
+        logger.info("[%s] [%s] [%s]", timezone.now(), logging.getLevelName(logging.INFO), "ReceiveBook.post")
         try:
             book = Book.objects.get(is_donated=True, book_id=request.data['book'], is_received=False)
             req = BookRequest.objects.get(user=self.request.user, book=book, status=BookRequest.APPROVED)
         except:
+            logger.info("[%s] [%s] [%s]", timezone.now(), logging.getLevelName(logging.INFO), "ReceiveBook.post: user {self.request.user}, book not found, response = 400")
             return Response({"Invalid request"}, status=HTTP_400_BAD_REQUEST)
 
         book.is_received = True
         book.save()
 
+        logger.info("[%s] [%s] [%s]", timezone.now(), logging.getLevelName(logging.INFO), f"ReceiveBook.post: user {self.request.user}, book {book} set to received")
+
         donator = book.donator
         number_of_request = book.number_of_request
-        donator.change_rooyesh((number_of_request/30) + 2)
+        donator.change_rooyesh((number_of_request / 30) + 2)
+
+        logger.info("[%s] [%s] [%s]", timezone.now(), logging.getLevelName(logging.INFO), f"ReceiveBook.post: user {donator}, rooyesh changed to {donator.rooyesh}")
 
         is_donator_vip = donator.is_user_vip()
         if is_donator_vip:
             donator.change_credit(3)
+            logger.info("[%s] [%s] [%s]", timezone.now(), logging.getLevelName(logging.INFO), f"ReceiveBook.post: user {donator}, is vip, credit changed to {donator.credit}")
         else:
             donator.change_credit(2)
+            logger.info("[%s] [%s] [%s]", timezone.now(), logging.getLevelName(logging.INFO), f"ReceiveBook.post: user {donator}, is not vip, credit changed to {donator.credit}")
         donator.save()
-
+        logger.info("[%s] [%s] [%s]", timezone.now(), logging.getLevelName(logging.INFO), f"ReceiveBook.post: user {donator}, response = 200")
         return Response({'Success'}, status=HTTP_200_OK)

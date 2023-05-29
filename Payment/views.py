@@ -4,13 +4,13 @@ from azbankgateways import bankfactories
 from azbankgateways.exceptions import AZBankGatewaysException
 from azbankgateways.models import CurrencyEnum, BankType
 from django.conf import settings
-from django.http import HttpResponse, Http404
+from django.http import HttpResponse
 from django.shortcuts import redirect
 from django.urls import reverse
 from django.utils import timezone
 from rest_framework import permissions
 from rest_framework.response import Response
-from rest_framework.status import HTTP_200_OK
+from rest_framework.status import HTTP_200_OK, HTTP_400_BAD_REQUEST
 from rest_framework.views import APIView
 
 from MyUser.models import MyUser
@@ -21,6 +21,8 @@ from django.conf import settings as django_settings
 
 from MyUser.permissions import OwnProfilePermission
 
+logger = logging.getLogger(__name__)
+
 
 class GoToGatewayView(APIView):
     permission_classes = [
@@ -29,19 +31,26 @@ class GoToGatewayView(APIView):
     ]
 
     def post(self, request):
+        logger.info("[%s] [%s] [%s]", timezone.now(), logging.getLevelName(logging.INFO), "GoToGatewayView.post")
         duration = request.data.get('duration', None)
+        if duration is None:
+            logger.error("[%s] [%s] [%s]", timezone.now(), logging.getLevelName(logging.ERROR), "GoToGatewayView.post: duration is None, response = 404")
+            return Response(status=HTTP_400_BAD_REQUEST)
         duration = int(duration)
 
         if duration is None or duration not in Transaction.VIP_OPTIONS:
-            raise Http404
+            logger.error("[%s] [%s] [%s]", timezone.now(), logging.getLevelName(logging.ERROR), "GoToGatewayView.post: duration is None or not in Transaction.VIP_OPTIONS, response = 404")
+            return Response(status=HTTP_400_BAD_REQUEST)
 
         amount = Transaction.VIP_OPTIONS[duration]
 
         if django_settings.IS_PYTHONANYWHERE:
+            logger.info("[%s] [%s] [%s]", timezone.now(), logging.getLevelName(logging.INFO), "GoToGatewayView.post: django_settings.IS_PYTHONANYWHERE = True, so redirect to success_payment")
             user = MyUser.objects.get(email=request.user.email)
             user.is_vip = True
             user.vip_end_date = timezone.now() + timezone.timedelta(days=duration)
             user.save()
+            logger.info("[%s] [%s] [%s]", timezone.now(), logging.getLevelName(logging.INFO), f"GoToGatewayView.post: user = {user}, user.is_vip = {user.is_vip}, user.vip_end_date = {user.vip_end_date}")
             return redirect(django_settings.SUCCESS_PAYMENT_REDIRECT_URL)
 
 
@@ -56,8 +65,6 @@ class GoToGatewayView(APIView):
 
             tracking_code = bank_record.tracking_code
 
-            print('tracking_code: ', tracking_code)
-
             # make a new Transaction
             transaction = Transaction.objects.create(
                 user=request.user,
@@ -68,32 +75,33 @@ class GoToGatewayView(APIView):
             )
             transaction.save()
 
-            # هدایت کاربر به درگاه بانک
+            logger.info("[%s] [%s] [%s]", timezone.now(), logging.getLevelName(logging.INFO), f"GoToGatewayView.post: user = {request.user}, amount = {amount}, tracking_code = {tracking_code}, status = {Transaction.PENDING}, vip_duration = {duration}")
             return bank.redirect_gateway()
         except AZBankGatewaysException as e:
-            logging.critical(e)
-            # TODO: redirect to failed page.
-            raise e
+            logger.error("[%s] [%s] [%s]", timezone.now(), logging.getLevelName(logging.ERROR), f"GoToGatewayView.post: AZBankGatewaysException = {e}, response = 404")
+            return Response(status=HTTP_400_BAD_REQUEST)
 
 
 class VerifyView(APIView):
 
     def get(self, request):
+        logger.info("[%s] [%s] [%s]", timezone.now(), logging.getLevelName(logging.INFO), "VerifyView.get")
         tracking_code = request.GET.get(settings.TRACKING_CODE_QUERY_PARAM, None)
-        print('verify: ', tracking_code)
         if not tracking_code:
-            raise Http404
+            logger.error("[%s] [%s] [%s]", timezone.now(), logging.getLevelName(logging.ERROR), "VerifyView.get: tracking_code is None, response = 404")
+            return Response(status=HTTP_400_BAD_REQUEST)
         try:
             transaction = Transaction.objects.get(tracking_code=tracking_code)
         except Transaction.DoesNotExist:
-            raise Http404
+            logger.error("[%s] [%s] [%s]", timezone.now(), logging.getLevelName(logging.ERROR), "VerifyView.get: Transaction.DoesNotExist, response = 404")
+            return Response(status=HTTP_400_BAD_REQUEST)
 
         try:
             bank_record = bank_models.Bank.objects.get(tracking_code=tracking_code)
         except bank_models.Bank.DoesNotExist:
-            raise Http404
+            logger.error("[%s] [%s] [%s]", timezone.now(), logging.getLevelName(logging.ERROR), "VerifyView.get: bank_models.Bank.DoesNotExist, response = 404")
+            return Response(status=HTTP_400_BAD_REQUEST)
 
-        # TODO: sandbox cause 302 redirect and always return error
         if bank_record.is_success or True:
             transaction.status = Transaction.SUCCESS
             transaction.save()
@@ -105,9 +113,10 @@ class VerifyView(APIView):
 
             transaction.user.save()
 
-            print(transaction.user.email)
+            logger.info("[%s] [%s] [%s]", timezone.now(), logging.getLevelName(logging.INFO), f'VerifyView.get: user = {transaction.user}, payment is success, user.is_vip = {transaction.user.is_vip}, user.vip_end_date = {transaction.user.vip_end_date}')
 
             if django_settings.IS_PYTHONANYWHERE:
+                logger.info("[%s] [%s] [%s]", timezone.now(), logging.getLevelName(logging.INFO), "VerifyView.get: django_settings.IS_PYTHONANYWHERE = True, so redirect to success_payment")
                 return redirect(django_settings.SUCCESS_PAYMENT_REDIRECT_URL)
             else:
                 return HttpResponse("پرداخت شما با موفقیت انجام شد. حساب کاربری شما به مدت {} روز فعال شد.".format(transaction.vip_duration))
@@ -129,4 +138,5 @@ class VIPOptionsView(APIView):
 
     # return vip options and prices for each option
     def get(self, request):
+        logger.info("[%s] [%s] [%s]", timezone.now(), logging.getLevelName(logging.INFO), "VIPOptionsView.get")
         return Response(Transaction.VIP_OPTIONS, status=HTTP_200_OK)

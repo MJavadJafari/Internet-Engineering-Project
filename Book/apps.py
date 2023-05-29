@@ -9,14 +9,14 @@ class BookConfig(AppConfig):
 
     def ready(self):
         import Book.signals as signals
-        from Book.models import Book
+        if settings.USE_FLASK_SERVER:
+            from Book.models import Book
 
-        try:
-            req = {}
-            for item in Book.objects.all():
-                req[item.book_id] = str(item.description)
-
-            response = requests.post(settings.FLASK_SERVER_ADDRESS + '/init_model', json=req)
-        except Exception as e:
-            print(e)
+            try:
+                req = {}
+                for item in Book.objects.all():
+                    req[item.book_id] = str(item.description)
+                response = requests.post(settings.FLASK_SERVER_ADDRESS + '/init_model', json=req)
+            except Exception as e:
+                print(e)
 
