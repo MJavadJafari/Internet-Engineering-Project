@@ -1,4 +1,6 @@
 import random
+import time
+
 import requests
 from django.conf import Settings, settings
 
@@ -13,6 +15,9 @@ from rest_framework.views import APIView
 from Book.models import Book, BookRequest
 from Book.serializers import BookSerializer, BookRequestSerializer, MyRequestsSerializer, AllBooksSerializer
 from MyUser.models import MyUser
+from django.core.cache import cache
+
+import timeit
 
 
 class RegisterBooks(CreateAPIView):
@@ -23,16 +28,46 @@ class RegisterBooks(CreateAPIView):
     serializer_class = BookSerializer
 
 
+class ClearRedis(APIView):
+    def get(self, request):
+        if settings.USE_REDIS:
+            cache.clear()
+        return Response(status=HTTP_200_OK)
+
+
+class AddRandomBooks(APIView):
+    def get(self, request):
+        for i in range(1000):
+            Book.objects.create(
+                name='Book ' + str(time.time()),
+                description='Description ' + str(time.time()),
+                author='Author ' + str(time.time()),
+                is_donated=False,
+                donator_id=1,
+            )
+            if i % 100 == 0:
+                print(i)
+        return Response(status=HTTP_200_OK)
+
+
 class BookInfoWithSuggestion(APIView):
-    permission_classes = [
-        permissions.IsAuthenticated
-    ]
 
     def get(self, request, pk):
         try:
             book = Book.objects.get(book_id=pk)
         except:
             return Response({"Invalid request"}, status=HTTP_400_BAD_REQUEST)
+
+        # get from redis
+        if settings.USE_REDIS:
+            similar_book_ids = cache.get('similar_books_' + str(book.book_id))
+            if similar_book_ids:
+                similar_books = Book.objects.filter(book_id__in=similar_book_ids)
+                response = {
+                    "book": AllBooksSerializer(book, context={'request': request}).data,
+                    "similar_books": AllBooksSerializer(similar_books, many=True, context={'request': request}).data,
+                }
+                return Response(response, status=HTTP_200_OK)
 
         req = {
             'id': book.book_id,
@@ -42,13 +77,20 @@ class BookInfoWithSuggestion(APIView):
             try:
                 res = requests.post(settings.FLASK_SERVER_ADDRESS + '/ask_book', data=req)
                 if res.status_code == 200:
+                    start = timeit.default_timer()
                     similar_books = Book.objects.filter(book_id__in=res.json())
+
+                    # put in redis
+                    if settings.USE_REDIS:
+                        similar_book_ids = [book.book_id for book in similar_books]
+                        cache.set('similar_books_' + str(book.book_id), similar_book_ids)
                 else:
                     similar_books = Book.objects.filter(is_donated=False).exclude(book_id=book.book_id).order_by('?')[:5]
             except:
                 similar_books = Book.objects.filter(is_donated=False).exclude(book_id=book.book_id).order_by('?')[:5]
         else:
             similar_books = Book.objects.filter(is_donated=False).exclude(book_id=book.book_id).order_by('?')[:5]
+
 
         response = {
             "book": AllBooksSerializer(book, context={'request': request}).data,

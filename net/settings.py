@@ -108,7 +108,9 @@ MIDDLEWARE = [
 ]
 
 FLASK_SERVER_ADDRESS = 'http://127.0.0.1:5000'
-USE_FLASK_SERVER = False
+USE_FLASK_SERVER = True
+USE_REDIS = True
+
 
 ROOT_URLCONF = 'net.urls'
 
@@ -189,6 +191,18 @@ REST_FRAMEWORK = {
         'rest_framework.authentication.TokenAuthentication',
     ],
 }
+
+CACHES = {
+    "default": {
+        "BACKEND": "django_redis.cache.RedisCache",
+        "LOCATION": "redis://127.0.0.1:6379/1",
+        "KEY_PREFIX": "kahroba",
+        "OPTIONS": {
+            "CLIENT_CLASS": "django_redis.client.DefaultClient",
+        }
+    }
+}
+
 
 CORS_ORIGIN_ALLOW_ALL = True
 

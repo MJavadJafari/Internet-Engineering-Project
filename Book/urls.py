@@ -2,7 +2,7 @@ from django.contrib import admin
 from django.urls import path, include
 
 from Book.views import BookInfo, RegisterBooks, AllBooks, AddRequest, My_requests, ConfirmDonate, \
-    DeleteBook, DeleteRequest, ReportRequest, ReceiveBook, BookInfoWithSuggestion
+    DeleteBook, DeleteRequest, ReportRequest, ReceiveBook, BookInfoWithSuggestion, ClearRedis, AddRandomBooks
 
 urlpatterns = [
     path('<int:pk>/', BookInfo.as_view()),
@@ -16,4 +16,6 @@ urlpatterns = [
     path('request/report/', ReportRequest.as_view()),
     path('request/receivebook/', ReceiveBook.as_view()),
     path('info-suggestion/<int:pk>/', BookInfoWithSuggestion.as_view()),
+    path('clear-redis/', ClearRedis.as_view()),
+    path('add-random-books/', AddRandomBooks.as_view()),
 ]

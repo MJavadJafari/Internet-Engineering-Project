@@ -21,12 +21,6 @@ class AllBooksSerializer(serializers.ModelSerializer):
         exclude = ('created_at', 'ranking')
         read_only_fields = ['is_donated', 'is_received', 'donator', 'book_id', 'number_of_request']
 
-    def to_representation(self, instance):
-        assert isinstance(instance, Book)
-        result = super().to_representation(instance)
-        result['is_requested_before'] = BookRequest.objects.filter(book=instance, user=self.context['request'].user).exists()
-        return result
-
 
 class BookRequestSerializer(serializers.ModelSerializer):
     class Meta:

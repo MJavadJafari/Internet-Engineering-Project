@@ -49,7 +49,7 @@ class SingletonRecommender:
             sim_dic[i] = np.max(cosine_similarity(selected_vec, self.book_data[i]))
         similar_indices = sorted(sim_dic, key=sim_dic.get, reverse=True)
 
-        return similar_indices[1:]
+        return similar_indices[1:5]
 
 
 @app.route('/init_model', methods=['POST'])
