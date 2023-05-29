@@ -3,6 +3,7 @@ from hazm import SentEmbedding
 from sklearn.metrics.pairwise import cosine_similarity
 import embedRank
 import joblib
+import heapq
 from flask import Flask, request, make_response, jsonify
 from hazm import POSTagger
 
@@ -51,12 +52,17 @@ class SingletonRecommender:
         if(id in self.book_data.keys()):
             self.book_data.pop(id)
 
-    def ask_book(self, id: int):
+    def ask_book(self, id: int, topn=5):
         selected_vec = self.book_data[id]
         sim_dic = {}
-        for i in self.book_data:
-            sim_dic[i] = np.max(cosine_similarity(selected_vec, self.book_data[i]))
-        similar_indices = sorted(sim_dic, key=sim_dic.get, reverse=True)
+        # for i in self.book_data:
+        #     sim_dic[i] = np.max(cosine_similarity(selected_vec, self.book_data[i]))
+        sim_dic = {i:np.max(cosine_similarity(selected_vec, self.book_data[i])) for i in self.book_data}
+        topn += 1 
+        topn = min(len(self.book_data), topn)
+
+        similar_indices = heapq.nlargest(topn, sim_dic, key=sim_dic.get)
+        # similar_indices = sorted(sim_dic, key=sim_dic.get, reverse=True)
 
         return similar_indices[1:]
     
