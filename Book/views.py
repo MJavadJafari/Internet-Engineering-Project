@@ -119,7 +119,6 @@ class ConfirmDonate(APIView):
         permissions.IsAuthenticated,
     ]
 
-    user_selection_strategy = WeightedRandomUserSelectionStrategy()
     confirmation_util = ConfirmDonateUtil(settings.USER_SELECTION_STRATEGY)
 
     def post(self, request):

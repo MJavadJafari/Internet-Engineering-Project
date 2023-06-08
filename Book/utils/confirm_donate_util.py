@@ -28,7 +28,6 @@ class ConfirmDonateUtil:
         if len(registered_users) == 0:
             return Response({"No one signed up yet"}, status=HTTP_400_BAD_REQUEST)
 
-        print("registered_users: ", registered_users)
         chosen_user = self.user_selection_strategy.select_user(registered_users)
 
         # set request status
