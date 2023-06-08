@@ -9,9 +9,15 @@ from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.response import Response
 from rest_framework.status import HTTP_400_BAD_REQUEST, HTTP_200_OK
 from rest_framework.views import APIView
+from django.apps import apps
+from importlib import import_module
+
 
 from Book.models import Book, BookRequest
 from Book.serializers import BookSerializer, BookRequestSerializer, MyRequestsSerializer, AllBooksSerializer
+from Book.user_selection_strategy.random_user_selection import RandomUserSelectionStrategy
+from Book.user_selection_strategy.weighted_random_user_selection import WeightedRandomUserSelectionStrategy
+from Book.utils.confirm_donate_util import ConfirmDonateUtil
 from MyUser.models import MyUser
 from django.utils import timezone
 import logging
@@ -113,42 +119,11 @@ class ConfirmDonate(APIView):
         permissions.IsAuthenticated,
     ]
 
+    user_selection_strategy = WeightedRandomUserSelectionStrategy()
+    confirmation_util = ConfirmDonateUtil(settings.USER_SELECTION_STRATEGY)
+
     def post(self, request):
-        logger.info("[%s] [%s] [%s]", timezone.now(), logging.getLevelName(logging.INFO), "ConfirmDonate.post")
-        try:
-            book = Book.objects.get(is_donated=False, donator=self.request.user, book_id=request.data['book'])
-        except:
-            logger.info("[%s] [%s] [%s]", timezone.now(), logging.getLevelName(logging.INFO), "ConfirmDonate.post: book not found, response = 400")
-            return Response({"Invalid request"}, status=HTTP_400_BAD_REQUEST)
-
-        all_requests = BookRequest.objects.filter(book=book)
-        registered_users = MyUser.objects.filter(user_id__in=all_requests.values_list('user'))
-        if len(registered_users) == 0:
-            logger.info("[%s] [%s] [%s]", timezone.now(), logging.getLevelName(logging.INFO), "ConfirmDonate.post: no one signed up yet, response = 400")
-            return Response({"No one signed up yet"}, status=HTTP_400_BAD_REQUEST)
-
-        registered_users = list(registered_users)
-        random_weights = [x.credit * 1.1 if x.is_user_vip() else x.credit for x in registered_users]
-        chosen_user = random.choices(registered_users, weights=random_weights, k=1)[0]
-
-        # set request status
-        for req in all_requests:
-            if req.user == chosen_user:
-                req.status = BookRequest.APPROVED
-            else:
-                req.status = BookRequest.REJECTED
-
-            req.save()
-            logger.info("[%s] [%s] [%s]", timezone.now(), logging.getLevelName(logging.INFO), f"ConfirmDonate.post: request with user {req.user} and book {req.book} set to {req.status}")
-
-        # set book donated
-        book.is_donated = True
-        book.save()
-
-        logger.info("[%s] [%s] [%s]", timezone.now(), logging.getLevelName(logging.INFO), f"ConfirmDonate.post: book {book} set to donated")
-        return Response({"phone_number": chosen_user.phone_number,
-                         "name": chosen_user.name,
-                         "post_address": chosen_user.post_address}, status=HTTP_200_OK)
+        return self.confirmation_util.confirm_donate(request)
 
 
 class DeleteBook(APIView):

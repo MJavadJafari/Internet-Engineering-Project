@@ -13,6 +13,10 @@ import os
 from pathlib import Path
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
+import Book
+from Book.user_selection_strategy.weighted_random_user_selection import WeightedRandomUserSelectionStrategy
+from Book.user_selection_strategy.random_user_selection import RandomUserSelectionStrategy
+
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 STATIC_ROOT = os.path.join(BASE_DIR, "static")
@@ -95,7 +99,6 @@ FAILED_PAYMENT_REDIRECT_URL = FRONT_SERVER_ADDRESS + '/fail-payment'
 
 IS_PYTHONANYWHERE = False
 
-
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
@@ -131,7 +134,6 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'net.wsgi.application'
 
-
 # Database
 # https://docs.djangoproject.com/en/4.1/ref/settings/#databases
 
@@ -141,7 +143,6 @@ DATABASES = {
         'NAME': BASE_DIR / 'db.sqlite3',
     }
 }
-
 
 # Password validation
 # https://docs.djangoproject.com/en/4.1/ref/settings/#auth-password-validators
@@ -161,7 +162,6 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-
 # Internationalization
 # https://docs.djangoproject.com/en/4.1/topics/i18n/
 
@@ -172,7 +172,6 @@ TIME_ZONE = 'UTC'
 USE_I18N = True
 
 USE_TZ = True
-
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.1/howto/static-files/
@@ -190,20 +189,20 @@ REST_FRAMEWORK = {
     ],
 }
 
-LOGGING = {
-    'version': 1,
-    'disable_existing_loggers': True,
-    'handlers': {
-        'file': {
-            'class': 'logging.FileHandler',
-            'filename': 'log.txt',
-        },
-    },
-    'root': {
-        'handlers': ['file'],
-        'level': 'INFO',
-    }
-}
+# LOGGING = {
+#     'version': 1,
+#     'disable_existing_loggers': True,
+#     'handlers': {
+#         'file': {
+#             'class': 'logging.FileHandler',
+#             'filename': 'log.txt',
+#         },
+#     },
+#     'root': {
+#         'handlers': ['file'],
+#         'level': 'INFO',
+#     }
+# }
 
 CORS_ORIGIN_ALLOW_ALL = True
-
+USER_SELECTION_STRATEGY = Book.user_selection_strategy.weighted_random_user_selection.WeightedRandomUserSelectionStrategy()

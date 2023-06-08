@@ -67,6 +67,17 @@ class MyUser(AbstractBaseUser):
         self.save(update_fields=['vip_end_date', 'is_vip'])
         logger.info("[%s] [%s] [%s]", timezone.now(), logging.getLevelName(logging.INFO), f"MyUser.set_vip: user {self} vip status updated, vip_end_date = {self.vip_end_date}")
 
+    # has_module_perms
+    def has_perm(self, perm, obj=None):
+        return True
+
+    # has_perms
+    def has_perms(self, perm_list, obj=None):
+        return True
+
+    def has_module_perms(self, app_label):
+        return True
+
     @property
     def is_staff(self):
         return self.is_admin
