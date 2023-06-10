@@ -2,10 +2,17 @@ import numpy as np
 from hazm import SentEmbedding
 from sklearn.metrics.pairwise import cosine_similarity
 import embedRank
+import pca
 import joblib
 import heapq
 from flask import Flask, request, make_response, jsonify
 from hazm import POSTagger
+from configparser import ConfigParser
+
+
+
+config_file_path = '/Users/e_ghafour/repos/kahroba/Internet-Engineering-Project/recommender/config.ini'
+
 
 big_sample_text = 'سفارت ایران در مادرید درباره فیلم منتشرشده از «حسن قشقاوی» در مراسم سال نو در کاخ سلطنتی اسپانیا و حاشیه‌سازی‌ها در فضای مجازی اعلام کرد: به تشریفات دربار کتباً اعلام شد سفیر بدون همراه در مراسم حضور خواهد داشت و همچون قبل به دلایل تشریفاتی نمی‌تواند با ملکه دست بدهد. همان‌گونه که کارشناس رسمی تشریفات در توضیحات خود به یک نشریه اسپانیایی گفت این موضوع توضیح مذهبی داشته و هرگز به معنی بی‌احترامی به مقام و شخصیت زن آن هم در سطح ملکه محترمه یک کشور نیست.'
 small_sample_text = 'در جنگل ایران گونه‌های جانوری زیادی وجود دارد.'
@@ -17,9 +24,18 @@ app = Flask(__name__)
 # sent2vec_path = r'C:\Users\delta\PycharmProjects\net\recommender\sent2vec-naab.model'
 # posTagger_path = r'C:\Users\delta\PycharmProjects\net\recommender\posTagger.model'
 
-sent2vec_path = r'/Users/e_ghafour/models/hazm/sent2vec/sent2vec-naab.model'
-posTagger_path = r'/Users/e_ghafour/models/hazm/pos_tagger.model'
-pca_path = r'/Users/e_ghafour/repos/kahroba/Internet-Engineering-Project/recommender/pca_sent2vec-naab.model'
+
+
+config = ConfigParser()
+config.read(config_file_path)
+
+sent2vec_path = config.get('MAIN_MODEL', 'sent2vec')
+posTagger_path = config.get('MAIN_MODEL', 'pos_tagger')
+pca_path = config.get('MAIN_MODEL', 'pca')
+train_pca = config.getboolean('MAIN_MODEL', 'train_pca')
+pca_dim = config.getint('MAIN_MODEL', 'pca_dim')
+new_pca = config.get('MAIN_MODEL', 'new_pca')
+
 
 class SingletonRecommender:
 
