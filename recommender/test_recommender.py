@@ -3,7 +3,6 @@ import json
 import ast
 import pytest
 from configparser import ConfigParser
-from hazm import POSTagger
 from main import *
 
 
