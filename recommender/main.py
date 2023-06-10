@@ -28,7 +28,7 @@ class SingletonRecommender:
             cls.instance = super(SingletonRecommender, cls).__new__(cls)
         return cls.instance
 
-    def init_model(self, book_data, sent2vec_path=sent2vec_path, posTagger_path=posTagger_path):
+    def init_model(self, book_data, sent2vec_path=sent2vec_path, posTagger_path=posTagger_path, pca_path=pca_path):
         self.embedding_model = SentEmbedding(model_path= sent2vec_path)
         self.posTagger = POSTagger(model = posTagger_path)
         self.pca = joblib.load(pca_path)
