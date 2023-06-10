@@ -2,13 +2,26 @@ from unittest.mock import patch
 import json
 import ast
 import pytest
+from configparser import ConfigParser
 from hazm import POSTagger
 from main import *
 
 
+config_file_path = '/Users/e_ghafour/repos/kahroba/Internet-Engineering-Project/recommender/config.ini'
+
+
 #prepared data
-embedding_path = r'/Users/e_ghafour/models/hazm/300light_sent2vec.model'
-tagger_path = r'/Users/e_ghafour/models/hazm/pos_tagger.model'
+
+config = ConfigParser()
+config.read(config_file_path)
+
+embedding_path = config.get('TEST_MODEL', 'test_sent2vec')
+tagger_path = config.get('TEST_MODEL', 'test_pos_tagger')
+pca_path = config.get('TEST_MODEL', 'test_pca')
+train_pca = config.getboolean('TEST_MODEL', 'test_train_pca')
+pca_dim = config.getint('TEST_MODEL', 'test_pca_dim')
+new_pca = config.get('TEST_MODEL', 'test_new_pca')
+
 big_sample_text = 'سفارت ایران در مادرید درباره فیلم منتشرشده از «حسن قشقاوی» در مراسم سال نو در کاخ سلطنتی اسپانیا و حاشیه‌سازی‌ها در فضای مجازی اعلام کرد: به تشریفات دربار کتباً اعلام شد سفیر بدون همراه در مراسم حضور خواهد داشت و همچون قبل به دلایل تشریفاتی نمی‌تواند با ملکه دست بدهد. همان‌گونه که کارشناس رسمی تشریفات در توضیحات خود به یک نشریه اسپانیایی گفت این موضوع توضیح مذهبی داشته و هرگز به معنی بی‌احترامی به مقام و شخصیت زن آن هم در سطح ملکه محترمه یک کشور نیست.'
 small_sample_text = 'در جنگل ایران گونه‌های جانوری زیادی وجود دارد.'
 small_sample_text1 = 'آمازون شامل ببرهای وحشی زیادی است.'
