@@ -398,3 +398,6 @@ pip-selfcheck.json
 /recommender/sent2vec-naab.model.wv.vectors.npy
 /recommender/sent2vec-naab.model
 /recommender/postagger.model
+/recommender/*.moodel
+*.model
+/recommender/haminjory.ipynb
