@@ -17,7 +17,6 @@ config.read(config_file_path)
 embedding_path = config.get('TEST_MODEL', 'test_sent2vec')
 tagger_path = config.get('TEST_MODEL', 'test_pos_tagger')
 pca_path = config.get('TEST_MODEL', 'test_pca')
-train_pca = config.getboolean('TEST_MODEL', 'test_train_pca')
 pca_dim = config.getint('TEST_MODEL', 'test_pca_dim')
 new_pca = config.get('TEST_MODEL', 'test_new_pca')
 
@@ -26,7 +25,7 @@ small_sample_text = 'در جنگل ایران گونه‌های جانوری ز�
 small_sample_text1 = 'آمازون شامل ببرهای وحشی زیادی است.'
 test_recommender = SingletonRecommender()
 sample_dict = {5:small_sample_text, 6:big_sample_text, 7:small_sample_text1}
-test_recommender.init_model(book_data=sample_dict, posTagger_path=tagger_path, sent2vec_path=embedding_path)
+test_recommender.init_model(book_data=sample_dict, posTagger_path=tagger_path, sent2vec_path=embedding_path, pca_path=pca_path)
 recommender = test_recommender
 
 @pytest.fixture

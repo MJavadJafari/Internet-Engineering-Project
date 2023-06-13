@@ -2,13 +2,12 @@ import numpy as np
 from hazm import SentEmbedding
 from sklearn.metrics.pairwise import cosine_similarity
 import embedRank
-import pca
 import joblib
 import heapq
 from flask import Flask, request, make_response, jsonify
 from hazm import POSTagger
 from configparser import ConfigParser
-
+from pca import train_pca
 
 
 config_file_path = '/Users/e_ghafour/repos/kahroba/Internet-Engineering-Project/recommender/config.ini'
@@ -32,7 +31,6 @@ config.read(config_file_path)
 sent2vec_path = config.get('MAIN_MODEL', 'sent2vec')
 posTagger_path = config.get('MAIN_MODEL', 'pos_tagger')
 pca_path = config.get('MAIN_MODEL', 'pca')
-train_pca = config.getboolean('MAIN_MODEL', 'train_pca')
 pca_dim = config.getint('MAIN_MODEL', 'pca_dim')
 new_pca = config.get('MAIN_MODEL', 'new_pca')
 
@@ -47,6 +45,9 @@ class SingletonRecommender:
     def init_model(self, book_data, sent2vec_path=sent2vec_path, posTagger_path=posTagger_path, pca_path=pca_path):
         self.embedding_model = SentEmbedding(model_path= sent2vec_path)
         self.posTagger = POSTagger(model = posTagger_path)
+        if pca_path == '':
+            train_pca(self.embedding_model, pca_dim, dest_path=new_pca)
+            pca_path = new_pca
         self.pca = joblib.load(pca_path)
         tmp_dic = {}
         for item in book_data:
@@ -123,9 +124,10 @@ def ask_book():
 recommender = SingletonRecommender()
 
 if __name__ == '__main__':
-    #for locust...
-    recommender.init_model(sample_dict, sent2vec_path, posTagger_path)
-    print(recommender.all_book_id())
+    # #for locust...
+    # recommender.init_model(sample_dict, sent2vec_path, posTagger_path)
+    # print(recommender.all_book_id())
     
-    # recommender.init_model({})
+
+    recommender.init_model({}, pca_path=pca_path)
     app.run(port=5000)
