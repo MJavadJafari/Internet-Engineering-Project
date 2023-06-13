@@ -6,7 +6,7 @@ from configparser import ConfigParser
 from main import *
 
 
-config_file_path = '/Users/e_ghafour/repos/kahroba/Internet-Engineering-Project/recommender/config.ini'
+config_file_path = 'recommender/config.ini'
 
 
 #prepared data
@@ -25,7 +25,7 @@ small_sample_text = 'در جنگل ایران گونه‌های جانوری ز�
 small_sample_text1 = 'آمازون شامل ببرهای وحشی زیادی است.'
 test_recommender = SingletonRecommender()
 sample_dict = {5:small_sample_text, 6:big_sample_text, 7:small_sample_text1}
-test_recommender.init_model(book_data=sample_dict, posTagger_path=tagger_path, sent2vec_path=embedding_path, pca_path=pca_path)
+test_recommender.init_model(book_data=sample_dict, posTagger_path=tagger_path, sent2vec_path=embedding_path, pca_path=pca_path, pca_dim=pca_dim, new_pca_path=new_pca)
 recommender = test_recommender
 
 @pytest.fixture

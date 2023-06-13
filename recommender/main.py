@@ -10,7 +10,7 @@ from configparser import ConfigParser
 from pca import train_pca
 
 
-config_file_path = '/Users/e_ghafour/repos/kahroba/Internet-Engineering-Project/recommender/config.ini'
+config_file_path = 'recommender/config.ini'
 
 
 big_sample_text = 'سفارت ایران در مادرید درباره فیلم منتشرشده از «حسن قشقاوی» در مراسم سال نو در کاخ سلطنتی اسپانیا و حاشیه‌سازی‌ها در فضای مجازی اعلام کرد: به تشریفات دربار کتباً اعلام شد سفیر بدون همراه در مراسم حضور خواهد داشت و همچون قبل به دلایل تشریفاتی نمی‌تواند با ملکه دست بدهد. همان‌گونه که کارشناس رسمی تشریفات در توضیحات خود به یک نشریه اسپانیایی گفت این موضوع توضیح مذهبی داشته و هرگز به معنی بی‌احترامی به مقام و شخصیت زن آن هم در سطح ملکه محترمه یک کشور نیست.'
@@ -42,11 +42,11 @@ class SingletonRecommender:
             cls.instance = super(SingletonRecommender, cls).__new__(cls)
         return cls.instance
 
-    def init_model(self, book_data, sent2vec_path=sent2vec_path, posTagger_path=posTagger_path, pca_path=pca_path):
+    def init_model(self, book_data, sent2vec_path=sent2vec_path, posTagger_path=posTagger_path, pca_path=pca_path, pca_dim=5, new_pca_path='pca.model'):
         self.embedding_model = SentEmbedding(model_path= sent2vec_path)
         self.posTagger = POSTagger(model = posTagger_path)
         if pca_path == '':
-            train_pca(self.embedding_model, pca_dim, dest_path=new_pca)
+            train_pca(self.embedding_model, pca_dim, dest_path=new_pca_path)
             pca_path = new_pca
         self.pca = joblib.load(pca_path)
         tmp_dic = {}
@@ -129,5 +129,5 @@ if __name__ == '__main__':
     # print(recommender.all_book_id())
     
 
-    recommender.init_model({}, pca_path=pca_path)
+    recommender.init_model({}, pca_path=pca_path, pca_dim=pca_dim, new_pca_path=new_pca)
     app.run(port=5000)
