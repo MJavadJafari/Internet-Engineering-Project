@@ -1,0 +1,22 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: django-deployment
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: django
+  template:
+    metadata:
+      labels:
+        app: django
+    spec:
+      containers:
+        - name: django-container
+          image: django-docker:0.0.1
+          ports:
+            - containerPort: 8000
+          env:
+            - name: test
+              value: "1"
