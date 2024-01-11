@@ -4,7 +4,7 @@
 
 This repository contains the implementation of a Book Recommendation System for a book donation website. The system suggests the most relevant books to users based on the abstracts of the books. It utilizes embeddings, cosine similarity, and PCA (Principal Component Analysis) for dimensionality reduction.
 
-
+![website view](book_recommendation_sample.jpg)
 
 ## Features
 
